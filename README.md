@@ -4,12 +4,25 @@
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.16-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.2-0175C2?logo=dart&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-green)
+![Platform](https://img.shields.io/badge/Platform-Android-green)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 
 ---
 
-## Features
+> **Status:** The code on this branch is PitStop 1.0. The screenshots below show a local development build of PitStop 2.0, whose source code has not yet been published here. The feature list below describes version 1.0.
+
+## PitStop 2.0 preview
+
+The upcoming local build adds a dashboard, fuel and charging entries, a unified history, recurring reminders, CSV import/export and ZIP backups. Screenshots were captured on an Android phone using fictional demonstration data.
+
+| Dashboard | History | Reminders |
+|:---:|:---:|:---:|
+| <img src="screenshots-demo/jasny-pulpit.webp" width="240" alt="Dashboard in light theme"> | <img src="screenshots-demo/jasny-historia.webp" width="240" alt="History in light theme"> | <img src="screenshots-demo/jasny-terminy.webp" width="240" alt="Reminders in light theme"> |
+| <img src="screenshots-demo/ciemny-pulpit.webp" width="240" alt="Dashboard in dark theme"> | <img src="screenshots-demo/ciemny-historia.webp" width="240" alt="History in dark theme"> | <img src="screenshots-demo/ciemny-terminy.webp" width="240" alt="Reminders in dark theme"> |
+
+---
+
+## Features in version 1.0
 
 ### 🚗 Car Profiles
 - Add multiple vehicles with photo, make/model/year, license plate and current mileage
@@ -108,7 +121,7 @@ Foreign keys with `CASCADE DELETE` ensure no orphaned rows.
 
 ```bash
 # Clone
-git clone https://github.com/marcincyber/pitstop.git
+git clone https://github.com/techparka/pitstop.git
 cd pitstop
 
 # Install dependencies
@@ -156,7 +169,7 @@ Screen (ConsumerWidget)
 | Platform | Status |
 |----------|--------|
 | Android (API 21+, Android 5.0) | ✅ Tested |
-| iOS (14+) | ✅ Configured |
+| iOS (14+) | Configured, not verified |
 
 Tested on: Xiaomi Redmi K30 Pro running crDROID (Android 16).
 
