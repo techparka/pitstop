@@ -1,6 +1,8 @@
-# 🏎️ PitStop — Car Service Tracker
+<img src="docs/logo.png" alt="PitStop logo" width="112">
 
-> Keep your cars pit-stop ready. Track every service, cost, and reminder — all offline, all on your device.
+# PitStop: Car Service Tracker
+
+> Keep your cars pit-stop ready. Track every service, cost, and reminder. Everything stays offline on your device.
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.16-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.2-0175C2?logo=dart&logoColor=white)
@@ -26,7 +28,7 @@ The upcoming local build adds a dashboard, fuel and charging entries, a unified 
 
 ### 🚗 Car Profiles
 - Add multiple vehicles with photo, make/model/year, license plate and current mileage
-- All data stored locally — no account, no cloud, no tracking
+- All data stored locally, with no account, cloud or tracking
 
 ### 🔧 Service Records
 - Log every maintenance event: oil change, tires, brakes, inspection and more
@@ -37,7 +39,7 @@ The upcoming local build adds a dashboard, fuel and charging entries, a unified 
 ### 🔔 Reminders
 - Set reminders by **date** (e.g. next inspection on 15 Mar 2025) and/or **mileage** (e.g. oil change at 150,000 km)
 - Visual urgency: **red** = overdue, **amber** = due within 30 days / 1,000 km, **green** = upcoming
-- Mark done with a single tap — reminder disappears from active list
+- Mark done with a single tap to remove a reminder from the active list
 
 ### 📊 Cost Statistics
 - Total spend per car, average cost per service, date of last service
@@ -99,10 +101,10 @@ lib/
 ### Database Schema
 
 ```
-vehicles          — id, name, make, model, year, licensePlate?, photoPath?, currentMileage, createdAt
-service_records   — id, vehicleId→vehicles, title, description?, serviceDate, mileage?, cost?, serviceType, workshop?, createdAt
-attachments       — id, serviceRecordId→service_records, filePath, fileType (IMAGE|PDF), fileName, createdAt
-reminders         — id, vehicleId→vehicles, title, note?, dueDate?, dueMileage?, isDone, serviceType, createdAt
+vehicles          : id, name, make, model, year, licensePlate?, photoPath?, currentMileage, createdAt
+service_records   : id, vehicleId→vehicles, title, description?, serviceDate, mileage?, cost?, serviceType, workshop?, createdAt
+attachments       : id, serviceRecordId→service_records, filePath, fileType (IMAGE|PDF), fileName, createdAt
+reminders         : id, vehicleId→vehicles, title, note?, dueDate?, dueMileage?, isDone, serviceType, createdAt
 ```
 
 Foreign keys with `CASCADE DELETE` ensure no orphaned rows.  
@@ -158,9 +160,9 @@ Screen (ConsumerWidget)
                     └── SQLite (on-device)
 ```
 
-- Screens subscribe to `StreamProvider` — UI rebuilds automatically when data changes
+- Screens subscribe to `StreamProvider`, so the UI rebuilds automatically when data changes
 - Repositories expose typed streams and handle file I/O alongside DB writes
-- No use-case layer — repositories are called directly from providers (pragmatic for a personal app)
+- Repositories are called directly from providers, without a separate use-case layer
 
 ---
 
@@ -177,4 +179,4 @@ Tested on: Xiaomi Redmi K30 Pro running crDROID (Android 16).
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE) for details.
