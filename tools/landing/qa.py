@@ -82,8 +82,8 @@ def main() -> int:
         check("screenshots present", shots.count() >= 8, f"{shots.count()} screenshot tags")
 
         # counters should have settled on their measured values
-        nums = page.eval_on_selector_all(".fact__num span", "els => els.map(e => e.textContent.trim())")
-        check("fact counters rendered", "8" in nums and "4761" in nums and "0" in nums, str(nums))
+        benefits = page.locator(".hero__benefits li").all_inner_texts()
+        check("hero benefits visible", len(benefits) == 3 and all(benefits), str(benefits))
         grid = page.eval_on_selector_all(".number__num span", "els => els.map(e => e.textContent.trim())")
         check("repo numbers rendered", grid == ["10", "0", "4761", "8"], str(grid))
 
@@ -146,9 +146,7 @@ def main() -> int:
         check("translation keeps every id", not swallowed,
               ", ".join(swallowed) or f"{len(probe['ids'])} ids intact")
         brand = page.locator(".brand__ver").inner_text().strip()
-        footer_ver = page.locator(".footer__ver").inner_text().strip()
-        check("version shows in header and footer", brand == "v2.0.0" and "2.0.0" in footer_ver,
-              f"{brand} | {footer_ver[:56]}")
+        check("version shows in header", brand == "v2.0.0", brand)
         qapage.close()
 
         # theme: auto -> light -> dark -> auto, persisted
@@ -318,7 +316,7 @@ def main() -> int:
         page.wait_for_timeout(300)
         hidden = page.evaluate("() => [...document.querySelectorAll('.reveal')].filter(e => getComputedStyle(e).opacity < 0.2).length")
         check("reduced motion shows content", hidden == 0, f"{hidden} hidden blocks")
-        nums_rm = page.eval_on_selector_all(".fact__num span", "els => els.map(e => e.textContent.trim())")
+        nums_rm = page.eval_on_selector_all(".number__num span", "els => els.map(e => e.textContent.trim())")
         check("counters filled without animation", "4761" in nums_rm, str(nums_rm))
 
         browser.close()

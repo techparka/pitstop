@@ -81,7 +81,7 @@
       "name": "Czy aplikacja działa bez internetu?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Tak, dosłownie: w manifeście nie ma uprawnienia INTERNET. Nie ma też konta, chmury ani pakietów analitycznych, więc w trybie samolotowym działa nawet raport PDF."
+        "text": "Tak. PitStop działa offline i nie wymaga konta."
       }
     },
     {
@@ -89,15 +89,15 @@
       "name": "Gdzie są zapisane dane?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "W pliku car_service.db w katalogu aplikacji, obok zdjęć i PDF-ów. Kopia to ZIP z katalogu backups, bez szyfrowania."
+        "text": "Na telefonie. Kopię ZIP możesz zapisać w wybranym miejscu. Nie jest szyfrowana."
       }
     },
     {
       "@type": "Question",
-      "name": "Czy zrzuty pokazują wersję z repozytorium?",
+      "name": "Czy mogę zbudować aplikację samodzielnie?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Tak. Kod i zrzuty przedstawiają wersję 2.0.0+2 ze schematem bazy 3. Obejmuje ona księgę wydatków, cykliczne terminy, kopie ZIP, CSV i raport PDF."
+        "text": "Tak. Kod źródłowy i instrukcja uruchomienia są na GitHubie."
       }
     },
     {
@@ -113,7 +113,7 @@
       "name": "W jakim języku jest aplikacja?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Tylko po polsku: nazwy pól są wpisane w kod, a daty i kwoty formatuje intl z ustawieniem pl_PL. Ta strona jest dwujęzyczna, aplikacja na razie nie."
+        "text": "Po polsku i angielsku. Możesz wybrać język w ustawieniach lub używać języka telefonu."
       }
     }
   ]
@@ -208,27 +208,27 @@
 <section class="hero">
   <div class="wrap hero__grid">
     <div class="hero__copy">
-      <p class="overline" data-i18n="hero.overline">Historia serwisowa bez arkuszy w chmurze</p>
-      <h1 data-i18n="hero.h1">Termin, rachunek i przebieg w jednym miejscu</h1>
+      <p class="overline" data-i18n="hero.overline">Twoje auto. Twoja historia.</p>
+      <h1 data-i18n="hero.h1">Wszystko o Twoim aucie w jednym miejscu</h1>
       <p class="lead hero__lead">
-        <span data-i18n="hero.lead1">PitStop trzyma historię serwisową auta w telefonie: terminy z datą albo przebiegiem, rachunki z warsztatu, tankowania i kopie z sumą kontrolną.</span>
-        <span data-i18n="hero.lead2">Kod na licencji MIT, zero uprawnień do internetu, zero kont.</span>
+        <span data-i18n="hero.lead1">Zapisuj serwisy, tankowania i wydatki. PitStop przypomni Ci też o ważnych terminach.</span>
+        <span data-i18n="hero.lead2">Bez konta, reklam i internetu. Dane zostają na telefonie.</span>
       </p>
       <div class="btn-row">
-        <a class="btn btn--primary" href="https://github.com/techparka/pitstop/releases" rel="noreferrer noopener">
+        <a class="btn btn--primary" href="https://github.com/techparka/pitstop#uruchomienie-i-testy" rel="noreferrer noopener">
           <svg class="i" aria-hidden="true"><use href="#ic-phone"></use></svg>
-          <span data-i18n="hero.cta1">Pobierz APK</span>
+          <span data-i18n="hero.cta1">Zobacz projekt</span>
         </a>
-        <a class="btn btn--ghost" href="https://github.com/techparka/pitstop" rel="noreferrer noopener">
-          <svg class="i" aria-hidden="true"><use href="#ic-github"></use></svg>
-          <span data-i18n="hero.cta2">Kod na GitHubie</span>
+        <a class="btn btn--ghost" href="#screens">
+          <svg class="i" aria-hidden="true"><use href="#ic-layers"></use></svg>
+          <span data-i18n="hero.cta2">Zobacz aplikację</span>
         </a>
       </div>
-      <p class="hero__status">
-        <span class="hero__status-a" data-i18n="hero.statusA">W repozytorium wersja 2.0.0.</span>
-        <span data-i18n="hero.statusB">Zrzuty ekranu pochodzą z wersji 2.0.0+2.</span>
-        <a href="#faq-note" data-i18n="hero.statusLink">Czym różni się 2.0</a>
-      </p>
+      <ul class="hero__benefits" aria-label="PitStop">
+        <li data-i18n="hero.statusA">Dla Androida</li>
+        <li data-i18n="hero.statusB">Polski i angielski</li>
+        <li data-i18n="hero.statusLink">Działa offline</li>
+      </ul>
     </div>
 
     <div class="hero__phones">
@@ -238,25 +238,6 @@
       <figure class="phone phone--front">
         <img src="screenshots/pulpit-light.webp" width="540" height="1200" decoding="async" fetchpriority="high" data-i18n-label="hero.phones.alt2" alt="Pulpit aplikacji w jasnym motywie">
       </figure>
-      <p class="hero__note" data-i18n="hero.phones.note">Zrzut z builda 2.0.0+2 (schemat bazy 3). Ten sam ekran w 1.0 wygląda prościej i nie ma w nim księgi wydatków.</p>
-    </div>
-  </div>
-  <div class="wrap facts reveal">
-    <div class="fact">
-      <div class="fact__num"><span data-count="8">8</span></div>
-      <div class="fact__meta"><span class="fact__label" data-i18n="fact1.label">tabel w bazie wersji 2.0</span><span class="fact__src" data-i18n="fact1.src">tables.dart</span></div>
-    </div>
-    <div class="fact">
-      <div class="fact__num"><span data-count="4761">4761</span></div>
-      <div class="fact__meta"><span class="fact__label" data-i18n="fact2.label">linii Dart w wersji 1.0</span><span class="fact__src" data-i18n="fact2.src">23 pliki .dart w wersji 1.0</span></div>
-    </div>
-    <div class="fact">
-      <div class="fact__num"><span data-count="0">0</span></div>
-      <div class="fact__meta"><span class="fact__label" data-i18n="fact3.label">uprawnień do sieci w manifeście</span><span class="fact__src" data-i18n="fact3.src">AndroidManifest.xml</span></div>
-    </div>
-    <div class="fact">
-      <div class="fact__num">MIT</div>
-      <div class="fact__meta"><span class="fact__label" data-i18n="fact4.label">licencja, bez opłat i konta</span><span class="fact__src" data-i18n="fact4.src">LICENSE</span></div>
     </div>
   </div>
 </section>
@@ -266,32 +247,32 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="overline" data-i18n="features.label">Co jest w środku</p>
-      <h2 data-i18n="features.h2">Funkcje, których używa się co tydzień</h2>
-      <p class="lead" data-i18n="features.lead">Każda funkcja ma swój ekran i swoje miejsce w bazie. Plakietki pokazują wersję, w której pojawiła się dana funkcja.</p>
+      <h2 data-i18n="features.h2">Wszystko, czego potrzebujesz pod ręką</h2>
+      <p class="lead" data-i18n="features.lead">Od pierwszego tankowania po kolejny przegląd.</p>
     </div>
 
     <div class="bento reveal">
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-car"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f1.h">Auto z numerem VIN, napędem i notatką</h3>
-        <p data-i18n="f1.p">Nazwa, marka, model, rocznik, rejestracja, numer VIN, zdjęcie i stan licznika. W 2.0 dochodzi napęd (benzyna, diesel, benzyna + LPG, hybryda, plug-in, elektryk), data zakupu i notatki.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-car"></use></svg></div>
+        <h3 data-i18n="f1.h">Twój garaż</h3>
+        <p data-i18n="f1.p">Dodaj jedno lub kilka aut. Zapisz przebieg, VIN i własne notatki.</p>
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-receipt"></use></svg><span class="badge badge--now">1.0</span></div>
-        <h3 data-i18n="f2.h">Serwis z fakturą</h3>
-        <p data-i18n="f2.p">Tytuł, data, przebieg, kwota w złotówkach, warsztat i kategoria z listy. Do tego zdjęcie z aparatu albo PDF faktury.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-receipt"></use></svg></div>
+        <h3 data-i18n="f2.h">Historia serwisów</h3>
+        <p data-i18n="f2.p">Zapisz, co zrobiono, ile kosztowało i gdzie. Dołącz zdjęcie lub fakturę PDF.</p>
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-tool"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f3.h">Części i robocizna osobno</h3>
-        <p data-i18n="f3.p">Rozbicie jest opcjonalne: rozwijasz pole „Części i robocizna” i dopisujesz pozycje z rodzajem (część albo robocizna), nazwą i kwotą. Gdy jest choć jedna pozycja, kwota serwisu bierze się z ich sumy.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-tool"></use></svg></div>
+        <h3 data-i18n="f3.h">Części i robocizna</h3>
+        <p data-i18n="f3.p">Rozpisz koszt naprawy na części i pracę warsztatu.</p>
       </article>
 
       <article class="card span-8 feature">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-refresh"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f4.h">Termin w cyklu, który idzie dalej</h3>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-refresh"></use></svg></div>
+        <h3 data-i18n="f4.h">Terminy, które wracają</h3>
         <div class="flow">
           <div class="flow__step"><b data-i18n="f4.s1">Termin</b><span data-i18n="f4.s1d">data, kilometry albo jedno i drugie</span></div>
           <svg class="flow__arrow" aria-hidden="true"><use href="#ic-chev-right"></use></svg>
@@ -307,21 +288,21 @@
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-bell"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f5.h">Powiadomienia 7 dni przed, dzień przed i w dniu terminu</h3>
-        <p data-i18n="f5.p">Alarmy ustawia AlarmManager i budzi telefon rano. Po tapnięciu wchodzisz w edycję terminu. Harmonogram wraca po restarcie telefonu, po aktualizacji i po zmianie strefy czasowej.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-bell"></use></svg></div>
+        <h3 data-i18n="f5.h">Przypomnienia na czas</h3>
+        <p data-i18n="f5.p">Dostaniesz powiadomienie przed terminem i w dniu przeglądu.</p>
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-gauge"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f6.h">Tankowania liczone dla każdego paliwa osobno</h3>
-        <p data-i18n="f6.p">Benzyna, diesel i LPG mają własną średnią. Pełny bak otwiera odcinek, a tankowanie oznaczone jako pominięte liczy go od nowa. Ładowanie idzie w kilowatogodzinach.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-gauge"></use></svg></div>
+        <h3 data-i18n="f6.h">Tankowania i ładowania</h3>
+        <p data-i18n="f6.p">Zapisuj koszty i sprawdzaj średnie spalanie. Benzynę i LPG policzysz osobno.</p>
       </article>
 
       <article class="card span-8 feature">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-activity"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f7.h">Historia wszystkich wpisów w jednym strumieniu</h3>
-        <p data-i18n="f7.p">Serwisy i wpisy z księgi (tankowanie, ładowanie, wydatek, odczyt licznika) wychodzą z jednego zapytania i są ułożone datą.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-activity"></use></svg></div>
+        <h3 data-i18n="f7.h">Historia w jednym miejscu</h3>
+        <p data-i18n="f7.p">Serwisy, paliwo i inne wydatki znajdziesz na jednej liście.</p>
         <ul class="minis">
           <li><svg class="i i--sm" aria-hidden="true"><use href="#ic-check"></use></svg><span data-i18n="f7.c1">szukaj po tytule, opisie i warsztacie</span></li>
           <li><svg class="i i--sm" aria-hidden="true"><use href="#ic-check"></use></svg><span data-i18n="f7.c2">filtr kategorii, auta i dat</span></li>
@@ -330,33 +311,33 @@
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-layers"></use></svg><span class="badge badge--now">1.0</span><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f8.h">Analityka na CustomPainterze</h3>
-        <p data-i18n="f8.p">W 1.0 sumy i średnie. W 2.0 zakres dat, słupki miesiącami, kategorie, koszt kilometra i zużycie paliwa. Rysuje to CustomPainter, bez pakietu zewnętrznego.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-layers"></use></svg></div>
+        <h3 data-i18n="f8.h">Koszty pod kontrolą</h3>
+        <p data-i18n="f8.p">Zobacz wydatki w czasie, koszt kilometra i zużycie paliwa.</p>
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-file"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f9.h">Kopia ZIP z sumą kontrolną</h3>
-        <p data-i18n="f9.p">Archiwum ma data.json z ośmioma tabelami, folder media i manifest.json z sumą SHA-256 każdego pliku. Przed przywróceniem aplikacja sprawdza kopię i najpierw robi kopię tego, co teraz masz.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-file"></use></svg></div>
+        <h3 data-i18n="f9.h">Kopia Twoich danych</h3>
+        <p data-i18n="f9.p">Zapisz kopię ZIP ze zdjęciami i dokumentami. Aplikacja sprawdzi ją przed przywróceniem.</p>
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-table"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f10.h">CSV w obie strony i raport PDF</h3>
-        <p data-i18n="f10.p">Import dopasowuje kolumny i pokazuje podgląd wierszy. Błędny wiersz odpada, reszta wchodzi, a powtórny import tego samego pliku nic nie dodaje. Raport historii to PDF z A4 generowany na telefonie.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-table"></use></svg></div>
+        <h3 data-i18n="f10.h">Eksport i import</h3>
+        <p data-i18n="f10.p">Przenieś wpisy przez CSV albo zapisz historię jako raport PDF.</p>
       </article>
 
       <article class="card span-4">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-zap"></use></svg><span class="badge badge--dev">2.0</span></div>
-        <h3 data-i18n="f11.h">Szkic formularza nie ginie</h3>
-        <p data-i18n="f11.p">Niedokończony serwis, tankowanie czy termin zapisują się razem ze zdjęciem. Otworzysz ten sam formularz za godzinę albo po restarcie aplikacji i zastaniesz to, co wpisałeś.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-zap"></use></svg></div>
+        <h3 data-i18n="f11.h">Wróć do szkicu</h3>
+        <p data-i18n="f11.p">Nie musisz kończyć wpisu od razu. Szkic poczeka na Ciebie.</p>
       </article>
 
       <article class="card span-8 feature">
-        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-user-x"></use></svg><span class="badge badge--now">1.0</span></div>
-        <h3 data-i18n="f12.h">Bez konta, bez reklam, bez internetu</h3>
-        <p data-i18n="f12.p">Nie ma logowania, klienta chmury ani wskaźników analitycznych w kodzie. AndroidManifest nie pyta o INTERNET, więc aplikacja nie ma czym wysłać danych.</p>
+        <div class="card__top"><svg class="i" aria-hidden="true"><use href="#ic-user-x"></use></svg></div>
+        <h3 data-i18n="f12.h">Twoje dane zostają u Ciebie</h3>
+        <p data-i18n="f12.p">PitStop działa offline, bez konta i reklam. Kopię możesz zapisać poza telefonem.</p>
         <ul class="minis">
           <li><svg class="i i--sm" aria-hidden="true"><use href="#ic-check"></use></svg><span data-i18n="f12.c1">pyta o aparat, zdjęcia i start przy rozruchu</span></li>
           <li><svg class="i i--sm" aria-hidden="true"><use href="#ic-check"></use></svg><span data-i18n="f12.c2">eksport przez systemowy wybór miejsca</span></li>
@@ -371,8 +352,8 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="overline" data-i18n="demo.label">Sprawdź na swoich liczbach</p>
-      <h2 data-i18n="demo.h2">Trzy kalkulatory z logiką aplikacji</h2>
-      <p class="lead" data-i18n="demo.lead">Strona działa offline i liczy tymi samymi wzorami co kalkulatory w aplikacji.</p>
+      <h2 data-i18n="demo.h2">Policz na własnych danych</h2>
+      <p class="lead" data-i18n="demo.lead">Sprawdź termin, spalanie lub koszt kilometra.</p>
     </div>
 
     <div class="demo reveal">
@@ -578,8 +559,8 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="overline" data-i18n="screens.label">Ekran po ekranie</p>
-      <h2 data-i18n="screens.h2">Trzy zakładki i jeden ekran dodawania</h2>
-      <p class="lead" data-i18n="screens.lead">Dolna nawigacja ma Pulpit, Historię, Terminy i Garaż, a plusem obok niej dopisujesz auto albo wpis. Zrzuty kliknij, żeby zobaczyć pełny ekran.</p>
+      <h2 data-i18n="screens.h2">Zajrzyj do aplikacji</h2>
+      <p class="lead" data-i18n="screens.lead">Pulpit, historia, terminy i garaż. Kliknij zrzut, by go powiększyć.</p>
     </div>
 
     <div class="rail reveal">
@@ -589,8 +570,8 @@
           <span class="shot__btn" aria-hidden="true"><svg class="i" ><use href="#ic-expand"></use></svg><span data-i18n="shot.btn">Ekran</span></span>
         </button>
         <figcaption>
-          <h3 data-i18n="s1.c">Pulpit: na górze wydatki miesiąca</h3>
-          <p data-i18n="s1.p">Pod spodem licznik, najbliższe terminy z progami i ostatnie wpisy. W 1.0 tylko licznik, suma kosztów i trzy terminy.</p>
+          <h3 data-i18n="s1.c">Pulpit</h3>
+          <p data-i18n="s1.p">Przebieg, wydatki i najbliższe terminy na pierwszy rzut oka.</p>
         </figcaption>
       </figure>
 
@@ -600,8 +581,8 @@
           <span class="shot__btn" aria-hidden="true"><svg class="i" ><use href="#ic-expand"></use></svg><span data-i18n="shot.btn">Ekran</span></span>
         </button>
         <figcaption>
-          <h3 data-i18n="s2.c">Historia z wyszukiwarką i filtrami</h3>
-          <p data-i18n="s2.p">Wpisy z księgi i serwisy w jednej liście, filtrowane kategorią, autem i datą. W 1.0 wyłącznie serwisy.</p>
+          <h3 data-i18n="s2.c">Historia</h3>
+          <p data-i18n="s2.p">Wszystkie wpisy w jednym miejscu, z wyszukiwarką i filtrami.</p>
         </figcaption>
       </figure>
 
@@ -611,12 +592,12 @@
           <span class="shot__btn" aria-hidden="true"><svg class="i" ><use href="#ic-expand"></use></svg><span data-i18n="shot.btn">Ekran</span></span>
         </button>
         <figcaption>
-          <h3 data-i18n="s3.c">Terminy z progiem dni i kilometrów</h3>
-          <p data-i18n="s3.p">Aktywne terminy na górze, pod nimi zrobione, obok przycisk powiadomień. W 1.0 termin nie ma cyklu ani alarmów.</p>
+          <h3 data-i18n="s3.c">Terminy</h3>
+          <p data-i18n="s3.p">Wiesz, co i kiedy trzeba zrobić.</p>
         </figcaption>
       </figure>
     </div>
-    <p class="rail__hint reveal" data-i18n="screens.hint">Przewiń listę w bok albo użyj strzałek w podglądzie. Zrzuty pochodzą z builda 2.0.0+2.</p>
+    <p class="rail__hint reveal" data-i18n="screens.hint">Przewiń lub użyj strzałek w podglądzie.</p>
   </div>
 </section>
 
@@ -625,7 +606,7 @@
     <div class="sec-head reveal">
       <p class="overline" data-i18n="themes.label">Motyw</p>
       <h2 data-i18n="themes.h2">Jasny, ciemny i ten systemowy</h2>
-      <p class="lead" data-i18n="themes.lead">Ten sam widok w dwóch wariantach, bez osobnych arkuszy stylów. Motyw ustawisz w aplikacji i na tej stronie.</p>
+      <p class="lead" data-i18n="themes.lead">Wybierz motyw, który lubisz.</p>
     </div>
 
     <div class="theme-compare reveal">
@@ -635,7 +616,7 @@
         </button>
         <figcaption>
           <span class="theme-shot__tag"><svg class="i i--sm" aria-hidden="true"><use href="#ic-moon"></use></svg><span data-i18n="themes.dark">Ciemny</span></span>
-          <p data-i18n="themes.darkNote">Tło #11151C, karty #1D222C. Biały tekst ma 18:1, kolor wiodący 7:1.</p>
+          <p data-i18n="themes.darkNote">Wygodny po zmroku.</p>
         </figcaption>
       </figure>
       <figure class="theme-shot">
@@ -644,7 +625,7 @@
         </button>
         <figcaption>
           <span class="theme-shot__tag"><svg class="i i--sm" aria-hidden="true"><use href="#ic-sun"></use></svg><span data-i18n="themes.light">Jasny</span></span>
-          <p data-i18n="themes.lightNote">Tło #F5F6F8, białe karty, kolor wiodący ściemniony do #BA410C, żeby trzymał 5:1.</p>
+          <p data-i18n="themes.lightNote">Czytelny w ciągu dnia.</p>
         </figcaption>
       </figure>
     </div>
@@ -664,37 +645,37 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="overline" data-i18n="data.label">Dane i prywatność</p>
-      <h2 data-i18n="data.h2">Pliki leżą w telefonie, bez pośredników</h2>
-      <p class="lead" data-i18n="data.lead">Bazę SQLite tworzy Drift w katalogu aplikacji. Kopię robisz sam, plik CSV zapisujesz tam, gdzie wskażesz, a kopii na chmurze nie ma, bo aplikacja nie ma zgody na internet.</p>
+      <h2 data-i18n="data.h2">Twoje dane są na telefonie</h2>
+      <p class="lead" data-i18n="data.lead">Aplikacja działa offline. Pamiętaj, by zapisać kopię także poza telefonem.</p>
     </div>
 
     <div class="stack reveal">
       <div class="layer">
         <div class="layer__num"><svg class="i" aria-hidden="true"><use href="#ic-calculator"></use></svg></div>
         <div class="layer__body">
-          <h3 data-i18n="l1.h">Formularz i walidacja</h3>
-          <p data-i18n="l1.p">Kwota z dwoma miejscami po przecinku, data z kalendarza, licznik w kilometrach. Błędne pole dostaje komunikat, a szkic zostaje.</p>
+          <h3 data-i18n="l1.h">Zapisuj po swojemu</h3>
+          <p data-i18n="l1.p">Dodaj datę, przebieg, koszt i potrzebne notatki.</p>
         </div>
       </div>
       <div class="layer">
         <div class="layer__num"><svg class="i" aria-hidden="true"><use href="#ic-activity"></use></svg></div>
         <div class="layer__body">
-          <h3 data-i18n="l2.h">Interfejs słucha bazy</h3>
-          <p data-i18n="l2.p">Riverpod trzyma listy, filtry i wybrane auto. Ekrany słuchają strumieni z bazy, więc zapisany wpis wchodzi na listę bez odświeżania.</p>
+          <h3 data-i18n="l2.h">Wszystko pod ręką</h3>
+          <p data-i18n="l2.p">Twoje wpisy pojawiają się w historii auta.</p>
         </div>
       </div>
       <div class="layer">
         <div class="layer__num"><svg class="i" aria-hidden="true"><use href="#ic-rotate"></use></svg></div>
         <div class="layer__body">
-          <h3 data-i18n="l3.h">Repozytorium i transakcje</h3>
-          <p data-i18n="l3.p">Repozytorium składa serwisy z księgą w jednym zapytaniu. Zaznaczenie terminu wykonanym to transakcja: wpis do historii i nowy termin.</p>
+          <h3 data-i18n="l3.h">Terminy na później</h3>
+          <p data-i18n="l3.p">Po wykonaniu cyklicznego terminu możesz zapisać kolejny.</p>
         </div>
       </div>
       <div class="layer">
         <div class="layer__num"><svg class="i" aria-hidden="true"><use href="#ic-database"></use></svg></div>
         <div class="layer__body">
-          <h3 data-i18n="l4.h">Plik w telefonie</h3>
-          <p data-i18n="l4.p">car_service.db w katalogu aplikacji, zdjęcia i PDF-y obok. Relacji między tabelami pilnują obce klucze, listy przyspieszają trzy indeksy, a zapis nie wisi na interfejsie.</p>
+          <h3 data-i18n="l4.h">Zdjęcia i dokumenty</h3>
+          <p data-i18n="l4.p">Dołącz je do wpisów i zabierz ze sobą w kopii ZIP.</p>
         </div>
       </div>
     </div>
@@ -827,7 +808,7 @@
       <p data-i18n="lic.p">Zostaw notkę z licencją i nazwiskiem autora w kopiach, które rozdajesz. Kod jest dany bez żadnych gwarancji, więc za zgubiony termin przeglądowy odpowiadasz sam.</p>
       <div class="btn-row">
         <a class="btn btn--ghost btn--sm" href="https://github.com/techparka/pitstop/blob/main/LICENSE" rel="noreferrer noopener"><span data-i18n="lic.b1">Pełna treść licencji</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a>
-        <a class="btn btn--ghost btn--sm" href="https://github.com/techparka/pitstop/releases" rel="noreferrer noopener"><span data-i18n="lic.b2">Wydania z plikiem APK</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/techparka/pitstop/releases" rel="noreferrer noopener"><span data-i18n="lic.b2">Wydania</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a>
       </div>
     </div>
   </div>
@@ -837,8 +818,8 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="overline" data-i18n="start.label">Pierwsze odpalenie</p>
-      <h2 data-i18n="start.h2">Trzy ekrany do pierwszej wpisanej sumy</h2>
-      <p class="lead" data-i18n="start.lead">Aplikacja startuje na liście aut. Dalej dodajesz auto, potem serwis z ostatniej faktury, a na koniec termin na następną wymianę oleju.</p>
+      <h2 data-i18n="start.h2">Zacznij od swojego auta</h2>
+      <p class="lead" data-i18n="start.lead">Dodaj auto, wpisz ostatni serwis i ustaw kolejny termin.</p>
     </div>
 
     <ol class="steps reveal">
@@ -846,7 +827,7 @@
         <span class="step__num">1</span>
         <div class="step__body">
           <h3 data-i18n="st1.h">Auto i licznik</h3>
-          <p data-i18n="st1.p">Nazwa, marka, model, rocznik i rejestracja wystarczą. Licznik przepisujesz z deski, a VIN, napęd i datę zakupu dopiszesz później.</p>
+          <p data-i18n="st1.p">Wpisz podstawowe dane i aktualny przebieg. Resztę możesz uzupełnić później.</p>
           <ul class="minis">
             <li data-i18n="st1.c1">licznik z deski</li>
             <li data-i18n="st1.c2">VIN później</li>
@@ -858,7 +839,7 @@
         <span class="step__num">2</span>
         <div class="step__body">
           <h3 data-i18n="st2.h">Ostatni serwis</h3>
-          <p data-i18n="st2.p">Data, kilometry, kwota i warsztat. Zdjęcie faktury dołączysz z aparatu albo z galerii, a PDF w tym samym miejscu.</p>
+          <p data-i18n="st2.p">Dodaj datę, przebieg i koszt. Możesz dołączyć zdjęcie lub PDF.</p>
           <ul class="minis">
             <li data-i18n="st2.c1">zdjęcie z aparatu</li>
             <li data-i18n="st2.c2">PDF z galerii</li>
@@ -870,7 +851,7 @@
         <span class="step__num">3</span>
         <div class="step__body">
           <h3 data-i18n="st3.h">Termin, który wróci sam</h3>
-          <p data-i18n="st3.p">Daj terminowi datę, kilometry albo jedno i drugie, ustaw powtarzanie, a rano dostaniesz znak, że czas. Wykonany termin sam wystawia następny.</p>
+          <p data-i18n="st3.p">Wybierz datę lub przebieg i ustaw powtarzanie.</p>
           <ul class="minis">
             <li data-i18n="st3.c1">alarm na 7 dni</li>
             <li data-i18n="st3.c2">na 1 dzień</li>
@@ -881,8 +862,8 @@
     </ol>
 
     <div class="notes reveal">
-      <p class="note"><b data-i18n="note1b">Nie ma tego w Google Play.</b> <span data-i18n="note1">APK pobierasz z wydań na GitHubie i zezwalasz telefonowi na instalację z tego jednego źródła. W telefonie służbowym sprawdź przed instalacją rozmiar i sumę kontrolną pliku.</span></p>
-      <p class="note"><b data-i18n="note2b">Android 5.0 albo nowszy.</b> <span data-i18n="note2">Build bierze API 21 w górę i jest sprawdzony na telefonie z Androidem 14. Na tablecie i w przeglądarce nie działa: aplikacja jest na jeden telefon.</span></p>
+      <p class="note"><b data-i18n="note1b">Kod jest dostępny na GitHubie.</b> <span data-i18n="note1">Instrukcję zbudowania aplikacji znajdziesz w README.</span></p>
+      <p class="note"><b data-i18n="note2b">Android 5.0 albo nowszy.</b> <span data-i18n="note2">Aplikację sprawdziliśmy na telefonie z Androidem.</span></p>
       <p class="note"><b data-i18n="note3b">Aktualizacja z 1.0 do 2.0.</b> <span data-i18n="note3">Baza ma numery wersji, więc migracja z dwójki do trójki idzie sama, bez utraty danych. Własne buildy nadpiszą się tylko wtedy, gdy podpis i pakiet <code>com.example.car_service</code> zostaną te same.</span></p>
     </div>
 
@@ -893,15 +874,15 @@
     </details>
     <details class="faq reveal">
       <summary data-i18n="q2">Czy aplikacja działa bez internetu?</summary>
-      <p data-i18n="a2">Tak, dosłownie: w manifeście nie ma uprawnienia INTERNET. Nie ma też konta, chmury ani pakietów analitycznych, więc w trybie samolotowym działa nawet raport PDF.</p>
+      <p data-i18n="a2">Tak. PitStop działa offline i nie wymaga konta.</p>
     </details>
     <details class="faq reveal">
       <summary data-i18n="q3">Gdzie są zapisane dane?</summary>
-      <p data-i18n="a3">W pliku car_service.db w katalogu aplikacji, obok zdjęć i PDF-ów. Kopia to ZIP z katalogu backups, bez szyfrowania.</p>
+      <p data-i18n="a3">Na telefonie. Kopię ZIP możesz zapisać w wybranym miejscu. Nie jest szyfrowana.</p>
     </details>
     <details class="faq reveal">
-      <summary data-i18n="q5">Czy zrzuty pokazują wersję z repozytorium?</summary>
-      <p data-i18n="a5">Tak. Kod i zrzuty przedstawiają wersję 2.0.0+2 ze schematem bazy 3. Obejmuje ona księgę wydatków, cykliczne terminy, kopie ZIP, CSV i raport PDF.</p>
+      <summary data-i18n="q5">Czy mogę zbudować aplikację samodzielnie?</summary>
+      <p data-i18n="a5">Tak. Kod źródłowy i instrukcja uruchomienia są na GitHubie.</p>
     </details>
     <details class="faq reveal">
       <summary data-i18n="q7">Po co aplikacji aparat i zdjęcia?</summary>
@@ -909,18 +890,18 @@
     </details>
     <details class="faq reveal">
       <summary data-i18n="q8">W jakim języku jest aplikacja?</summary>
-      <p data-i18n="a8">Tylko po polsku: nazwy pól są wpisane w kod, a daty i kwoty formatuje intl z ustawieniem pl_PL. Ta strona jest dwujęzyczna, aplikacja na razie nie.</p>
+      <p data-i18n="a8">Po polsku i angielsku. Możesz wybrać język w ustawieniach lub używać języka telefonu.</p>
     </details>
   </div>
 </section>
 
 <section class="cta-band">
   <div class="wrap cta-box reveal">
-    <p class="overline" data-i18n="cta.overline">Odpalisz w kwadrans</p>
-    <h2 data-i18n="cta.h2">Pobierz APK, wrzuć trzy ostatnie rachunki</h2>
-    <p class="lead" data-i18n="cta.p">Bez konta, bez internetu i bez plików cookie, również na tej stronie. Po instalacji zostaje lista aut; reszta zależy od tego, co sam wpiszesz.</p>
+    <p class="overline" data-i18n="cta.overline">Gotowy na porządek w historii auta?</p>
+    <h2 data-i18n="cta.h2">Twój garaż, Twoje zasady</h2>
+    <p class="lead" data-i18n="cta.p">Zajrzyj do kodu i sprawdź, jak uruchomić PitStop.</p>
     <div class="btn-row btn-row--center">
-      <a class="btn btn--on-primary" href="https://github.com/techparka/pitstop/releases" rel="noreferrer noopener"><svg class="i" aria-hidden="true"><use href="#ic-gift"></use></svg><span data-i18n="cta.b1">Pobierz APK</span></a>
+      <a class="btn btn--on-primary" href="https://github.com/techparka/pitstop#uruchomienie-i-testy" rel="noreferrer noopener"><svg class="i" aria-hidden="true"><use href="#ic-gift"></use></svg><span data-i18n="cta.b1">Instrukcja uruchomienia</span></a>
       <a class="btn btn--ghost" href="https://github.com/techparka/pitstop" rel="noreferrer noopener"><svg class="i" aria-hidden="true"><use href="#ic-github"></use></svg><span data-i18n="cta.b2">Kod na GitHubie</span></a>
       <a class="btn btn--ghost" href="https://github.com/techparka/pitstop/issues/new" rel="noreferrer noopener"><svg class="i" aria-hidden="true"><use href="#ic-file"></use></svg><span data-i18n="cta.b3">Zgłoś błąd</span></a>
     </div>
@@ -938,13 +919,13 @@
         <span class="brand__name">PitStop</span>
       </div>
       <p class="footer__about" data-i18n="footer.about">Historia serwisowa auta w telefonie, bez konta i bez internetu. Kod na licencji MIT.</p>
-      <p class="footer__ver">W repozytorium <span data-version>2.0.0</span>. Kod i zrzuty: build 2.0.0+2.</p>
+
     </div>
     <div>
       <p class="footer__h">GitHub</p>
       <ul class="footer__list">
         <li><a href="https://github.com/techparka/pitstop" rel="noreferrer noopener"><span data-i18n="footer.l1">Repozytorium</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a></li>
-        <li><a href="https://github.com/techparka/pitstop/releases" rel="noreferrer noopener"><span data-i18n="footer.l2">Wydania z APK</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a></li>
+        <li><a href="https://github.com/techparka/pitstop/releases" rel="noreferrer noopener"><span data-i18n="footer.l2">Wydania</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a></li>
         <li><a href="https://github.com/techparka/pitstop/issues/new" rel="noreferrer noopener"><span data-i18n="footer.l3">Zgłoś błąd</span><svg class="i i--sm" aria-hidden="true"><use href="#ic-external"></use></svg></a></li>
       </ul>
     </div>
@@ -954,7 +935,7 @@
     </div>
   </div>
   <div class="wrap footer__bottom">
-    <p data-i18n="footer.made">Strona postawiona w katalogu <code>docs/</code> repozytorium z kodem, na GitHub Pages. Fonty i zrzuty są serwowane stąd, bez zewnętrznych serwerów i bez plików cookie.</p>
+    <p data-i18n="footer.made">Strona działa bez śledzenia i plików cookie.</p>
     <p class="footer__year"><span id="year">2026</span> · Marcin · PitStop</p>
   </div>
 </footer>
