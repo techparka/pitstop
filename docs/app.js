@@ -102,7 +102,7 @@
     'demo.tab.rem': 'Terminy', 'demo.tab.use': 'Zużycie', 'demo.tab.cost': 'Koszt kilometra',
     'demo.srcRem': 'Termin liczony datą i przebiegiem, jak na pulpicie aplikacji.',
     'demo.srcUse': 'Dwa pełne tankowania wystarczą; im więcej, tym średnia stabilniejsza.',
-    'demo.rem.count': (n) => n === 1 ? '1 termin w telefonie' : (n < 20 ? n + ' terminy w telefonie' : n + ' terminów w telefonie'),
+    'demo.rem.count': (n) => n === 1 ? '1 pozycja' : (n < 20 ? n + ' pozycje' : n + ' pozycji'),
 
     'rem.car': 'Auto', 'rem.car1': 'Yaris 1.0 benzyna', 'rem.car2': 'e-Up! elektryczny',
     'rem.type': 'Rodzaj terminu',
@@ -114,6 +114,7 @@
     'rem.now': 'Dzisiaj:', 
     'rem.btn.setNow': 'Ustaw dziś', 'rem.btn.add': 'Dodaj termin', 'rem.btn.reset': 'Przykład',
     'rem.hint': 'Aplikacja dopisuje kolejny termin, gdy zaznaczysz, że termin jest wykonany. Tutaj policzy tylko progi.',
+    'rem.need': 'Zaznacz datę albo przebieg, wtedy policzę progi.',
     'rem.foot': 'Czerwone: minęło. Bursztynowe: 30 dni albo 1000 km.',
     'rem.log.empty': 'Brak terminów w telefonie. Dodaj pierwszy.',
     'rem.none': 'Terminy w telefonie',
@@ -133,6 +134,8 @@
     'use.odo': 'Licznik przy tankowaniu', 'use.qty': 'Ile wlane albo władowane', 'use.costlabel': 'Kwota (opcja)',
     'use.full': 'Pełny bak albo pełne ładowanie', 'use.missed': 'Tankowanie pominięte',
     'use.hint': 'Pominięte tankowanie przerywa odcinek, tak jak w aplikacji. Kwota nie wchodzi do zużycia, tylko do kosztów.',
+    'use.need': 'Wpisz stan licznika i ilość paliwa, wtedy policzę zużycie.',
+    'use.undo.none': 'Nie ma czego cofnąć, na liście są wpisy wzorcowe.',
     'use.btn.add': 'Dodaj wpis', 'use.btn.undo': 'Cofnij', 'use.btn.reset': 'Przykład',
     'use.chips.dist': 'Odczytany dystans', 'use.chips.qty': 'Zużyte paliwo', 'use.chips.qtyEv': 'Zużycie prądu',
     'use.chips.last': 'Pomiar', 'use.chips.cost': 'Koszt trasy', 'use.chips.cost2': 'Koszt na 100',
@@ -290,7 +293,7 @@
     'hero.overline': 'Service history without shared spreadsheets',
     'hero.h1': 'Due dates, receipts and odometer in one place',
     'hero.lead1': 'PitStop keeps your car service history on the phone: due dates by calendar or mileage, workshop bills, refuelling logs and backups with checksums.',
-    'hero.lead2': 'MIT licensed code, zero network permissions, zero accounts.',
+    'hero.lead2': 'MIT-licensed code, zero network permissions, zero accounts.',
     'hero.cta1': 'Get the APK', 'hero.cta2': 'Source on GitHub',
     'hero.statusA': 'The repository ships version 1.0.0.',
     'hero.statusB': 'Screenshots come from a local 2.0.0+2 build that is not published yet.',
@@ -308,7 +311,7 @@
     'features.h2': 'Features you touch every week',
     'features.lead': 'Every feature has its own screen and its own place in the database. Each card is tagged with the version it belongs to: 1.0 is in the repo, 2.0 is still a local build.',
     'f1.h': 'A car with a VIN, a drive type and notes',
-    'f1.p': 'Name, make, model, year, registration, a 17 character VIN, a photo and the current odometer. Version 2.0 adds the drive type (petrol, diesel, petrol plus LPG, hybrid, plug-in hybrid, electric), purchase date and technical notes.',
+    'f1.p': 'Name, make, model, year, registration, a 17-character VIN, a photo and the current odometer. Version 2.0 adds the drive type (petrol, diesel, petrol plus LPG, hybrid, plug-in hybrid, electric), purchase date and technical notes.',
     'f2.h': 'A service entry with the invoice',
     'f2.p': 'Title, date, mileage, amount in zloty, workshop and category: oil change, tyre change, inspection, other. Attach a camera photo or the invoice PDF.',
     'f3.h': 'Parts and labour split apart',
@@ -348,7 +351,7 @@
     'demo.tab.rem': 'Reminders', 'demo.tab.use': 'Consumption', 'demo.tab.cost': 'Cost per km',
     'demo.srcRem': 'A reminder counted by date and by mileage, like on the dashboard.',
     'demo.srcUse': 'Two full tanks are enough; the more you add, the steadier the average.',
-    'demo.rem.count': (n) => n === 1 ? '1 reminder on the phone' : n + ' reminders on the phone',
+    'demo.rem.count': (n) => n === 1 ? '1 row' : n + ' rows',
 
     'rem.car': 'Car', 'rem.car1': 'Yaris 1.0 petrol', 'rem.car2': 'e-Up! electric',
     'rem.type': 'Reminder type',
@@ -360,6 +363,7 @@
     'rem.now': 'Today:',
     'rem.btn.setNow': 'Set today', 'rem.btn.add': 'Add reminder', 'rem.btn.reset': 'Example',
     'rem.hint': 'The app appends the next reminder when you mark one as done. Here it only computes the thresholds.',
+    'rem.need': 'Tick a date or a mileage, then I can compute the thresholds.',
     'rem.foot': 'Red: already gone. Amber: 30 days or 1000 km.',
     'rem.log.empty': 'No reminders on the phone. Add the first one.',
     'rem.none': 'Reminders on the phone',
@@ -379,6 +383,8 @@
     'use.odo': 'Odometer at the pump', 'use.qty': 'Amount pumped or charged', 'use.costlabel': 'Amount (optional)',
     'use.full': 'Full tank or full charge', 'use.missed': 'Skipped fill-up',
     'use.hint': 'A skipped fill-up breaks the leg, exactly like in the app. The amount does not enter consumption, only costs.',
+    'use.need': 'Type an odometer reading and a quantity, then I can work out consumption.',
+    'use.undo.none': 'Nothing to undo, the list holds the sample entries.',
     'use.btn.add': 'Add entry', 'use.btn.undo': 'Undo', 'use.btn.reset': 'Example',
     'use.chips.dist': 'Read distance', 'use.chips.qty': 'Fuel used', 'use.chips.qtyEv': 'Energy used',
     'use.chips.last': 'Measurement', 'use.chips.cost': 'Trip cost', 'use.chips.cost2': 'Cost per 100',
@@ -637,7 +643,10 @@
     live.textContent = msg;
     live.classList.add('is-on');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => live.classList.remove('is-on'), 2800);
+    toastTimer = setTimeout(() => {
+      live.classList.remove('is-on');
+      live.textContent = '';
+    }, 2800);
   }
 
   const lb = $('#lightbox');
@@ -805,7 +814,7 @@
     const byMile = document.getElementById('rem-bymile').checked;
     const due = byDate && remDateEl.value ? new Date(remDateEl.value + 'T12:00:00') : null;
     const dueKm = byMile && document.getElementById('rem-duekm').value !== '' ? int('rem-duekm') : null;
-    if (!due && dueKm == null) { toast(tf('rem.hint')); return false; }
+    if (!due && dueKm == null) { toast(tf('rem.need')); return false; }
     remCustom.push({ type: document.getElementById('rem-type').value, due: due, dueKm: dueKm });
     toast(tf('toast.rem.added'));
     return true;
@@ -838,6 +847,7 @@
     { odo: 40480, qty: 21.6, cost: 28.1, full: true, missed: false, kind: 'ev', date: new Date('2026-03-04T10:00:00') }
   ];
   let useRows = USE_SAMPLE.slice();
+  let useAdded = [];
 
   const unitBig = () => tf(val('use-kind') === 'ev' ? 'use.unit.ev' : 'use.unit.fuel');
   function computeUse(rows) {
@@ -908,19 +918,29 @@
     const kind = val('use-kind');
     const odo = int('use-odo');
     const qty = num('use-qty');
-    if (!odo || !qty) { toast(tf('use.hint')); return false; }
-    useRows.push({ odo: odo, qty: qty, cost: num('use-cost'), full: document.getElementById('use-full').checked, missed: document.getElementById('use-missed').checked, kind: kind, date: new Date() });
+    if (!odo || !qty) { toast(tf('use.need')); return false; }
+    const row = { odo: odo, qty: qty, cost: num('use-cost'), full: document.getElementById('use-full').checked, missed: document.getElementById('use-missed').checked, kind: kind, date: new Date() };
+    useRows.push(row);
+    useAdded.push(row);
     useRows.sort((a, b) => a.odo - b.odo);
     toast(tf('toast.use.added'));
     return true;
   }
   document.getElementById('use-add').addEventListener('click', () => { if (readUseForm()) renderUse(); });
-  document.getElementById('use-undo').addEventListener('click', () => { useRows.pop(); toast(tf('toast.use.undo')); renderUse(); });
-  document.getElementById('use-reset').addEventListener('click', () => { useRows = (val('use-kind') === 'ev' ? USE_SAMPLE_EV : USE_SAMPLE).slice(); renderUse(); });
+  document.getElementById('use-undo').addEventListener('click', () => {
+    const last = useAdded.pop();
+    if (!last) { toast(tf('use.undo.none')); return; }
+    const i = useRows.indexOf(last);
+    if (i >= 0) useRows.splice(i, 1);
+    toast(tf('toast.use.undo'));
+    renderUse();
+  });
+  document.getElementById('use-reset').addEventListener('click', () => { useRows = (val('use-kind') === 'ev' ? USE_SAMPLE_EV : USE_SAMPLE).slice(); useAdded = []; renderUse(); });
   document.getElementById('use-kind').addEventListener('change', () => {
     const isEv = val('use-kind') === 'ev';
     document.getElementById('use-missed').checked = false;
     document.getElementById('use-full').checked = true;
+    useAdded = [];
     useRows = (isEv ? USE_SAMPLE_EV : USE_SAMPLE).slice();
     renderUse();
   });
