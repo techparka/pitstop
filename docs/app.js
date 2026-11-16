@@ -68,7 +68,7 @@
     'f3.h': 'Części i robocizna osobno',
     'f3.p': 'Rozbicie jest opcjonalne: rozwijasz pole „Części i robocizna” i dopisujesz pozycje z rodzajem (część albo robocizna), nazwą i kwotą. Gdy jest choć jedna pozycja, kwota serwisu bierze się z ich sumy.',
     'f4.h': 'Termin w cyklu, który idzie dalej',
-    'f5.h': 'Powiadomienia na 7 dni, 1 dzień i w dniu terminu',
+    'f5.h': 'Powiadomienia 7 dni przed, dzień przed i w dniu terminu',
     'f5.p': 'Alarmy ustawia AlarmManager i budzi telefon rano. Po tapnięciu wchodzisz w edycję terminu. Harmonogram wraca po restarcie telefonu, po aktualizacji i po zmianie strefy czasowej.',
     'f6.h': 'Tankowania liczone dla każdego paliwa osobno',
     'f6.p': 'Benzyna, diesel i LPG mają własną średnią. Pełny bak otwiera odcinek, a tankowanie oznaczone jako pominięte liczy go od nowa. Ładowanie idzie w kilowatogodzinach.',
@@ -81,7 +81,7 @@
     'f10.h': 'CSV w obie strony i raport PDF',
     'f10.p': 'Import dopasowuje kolumny i pokazuje podgląd wierszy. Błędny wiersz odpada, reszta wchodzi, a powtórny import tego samego pliku nic nie dodaje. Raport historii to PDF z A4 generowany na telefonie.',
     'f11.h': 'Szkic formularza nie ginie',
-    'f11.p': 'Niedokończony serwis, tankowanie czy termin zapisują się razem ze zdjęciem. Otworzysz ten sam formularz za godzinę albo po restarcie aplikacji, zastajesz to, co wpisałeś.',
+    'f11.p': 'Niedokończony serwis, tankowanie czy termin zapisują się razem ze zdjęciem. Otworzysz ten sam formularz za godzinę albo po restarcie aplikacji i zastaniesz to, co wpisałeś.',
     'f12.h': 'Bez konta, bez reklam, bez internetu',
     'f12.p': 'Nie ma logowania, klienta chmury ani wskaźników analitycznych w kodzie. AndroidManifest nie pyta o INTERNET, więc aplikacja nie ma czym wysłać danych.',
 
@@ -152,7 +152,7 @@
     'cost.row.fuel': 'Paliwo i energia', 'cost.row.serv': 'Serwisy', 'cost.row.parts': 'Części zamienne',
     'cost.row.other': 'Pozostałe wpisy', 'cost.row.pred': 'Koszty przewidywane', 'cost.row.fixed': 'Rachunki stałe',
     'cost.total': 'Koszt kilometra', 'cost.none': 'brak danych',
-    'cost.foot': 'W analityce koszt kilometra bierze kilometry z dwóch odczytów licznika, a kwoty sumą z groszy. Wpis ten sam kosztuje raz, nawet jeśli dopiszesz go do serwisu i do wydatków.',
+    'cost.foot': 'Koszt kilometra bierze kilometry z dwóch odczytów licznika, kwoty dodaje w groszach i nie liczy kosztów spoza tego odcinka. Serwis i wydatek to osobne wpisy, więc ten sam koszt zapisz tylko w jednym miejscu.',
     'sums.all': 'Wszystkie wpisy', 'sums.own': 'Tylko moje wpisy', 'sums.pred': 'Z prognozami',
 
     'screens.label': 'Ekran po ekranie',
@@ -197,7 +197,7 @@
     'l3.h': 'Repozytorium i transakcje',
     'l3.p': 'Repozytorium składa serwisy z księgą w jednym zapytaniu. Zaznaczenie terminu wykonanym to transakcja: wpis do historii i nowy termin.',
     'l4.h': 'Plik w telefonie',
-    'l4.p': 'car_service.db w katalogu aplikacji, zdjęcia i PDF-y obok. Klucze obce włączone, trzy indeksy pod listy, izolata pod interfejsem.',
+    'l4.p': 'car_service.db w katalogu aplikacji, zdjęcia i PDF-y obok. Relacji między tabelami pilnują obce klucze, listy przyspieszają trzy indeksy, a zapis nie wisi na interfejsie.',
 
     'tech.label': 'Kod i liczby',
     'tech.h2': 'Flutter, Dart, osiem tabel i zero plików konfiguracyjnych na serwerze',
@@ -346,7 +346,7 @@
     'f3.h': 'Parts and labour split apart',
     'f3.p': 'The split is optional: an expandable "Części i robocizna" section takes items with a type (part or labour), a name and a cost. Once there is at least one item, the service amount comes from their sum.',
     'f4.h': 'A reminder cycle that rolls on',
-    'f5.h': 'Alerts 7 days, 1 day and on the day',
+    'f5.h': 'Alerts 7 days before, 1 day before and on the day',
     'f5.p': 'AlarmManager schedules the alerts and wakes the phone in the morning, and a tap opens the reminder editor. The schedule survives a reboot, an app update and a time-zone change.',
     'f6.h': 'Consumption per fuel, not per car',
     'f6.p': 'Petrol, diesel and LPG each keep their own average. A full tank opens the stretch, a skipped fill-up restarts it. Charging counts in kilowatt hours.',
@@ -430,7 +430,7 @@
     'cost.row.fuel': 'Fuel and energy', 'cost.row.serv': 'Services', 'cost.row.parts': 'Spare parts',
     'cost.row.other': 'Other entries', 'cost.row.pred': 'Predicted costs', 'cost.row.fixed': 'Fixed bills',
     'cost.total': 'Cost per kilometre', 'cost.none': 'no data',
-    'cost.foot': 'In analytics the cost per kilometre takes kilometres from two odometer readings and sums amounts in gross. The same entry is counted once, even if you add it to a service and to expenses.',
+    'cost.foot': 'Cost per kilometre takes its kilometres from two odometer readings, adds amounts in groszy and skips costs outside that stretch. A service and an expense are separate rows, so write a given cost down once.',
     'sums.all': 'All entries', 'sums.own': 'Only my entries', 'sums.pred': 'With forecasts',
 
     'screens.label': 'Screen by screen',
@@ -474,7 +474,7 @@
     'l3.h': 'Repository and transactions',
     'l3.p': 'The repository joins services with the ledger in a single query. Marking a reminder done is one transaction: a history entry and a new due date.',
     'l4.h': 'A file on the phone',
-    'l4.p': 'car_service.db in the app folder, photos and PDFs beside it. Foreign keys on, three indexes for the lists, database work off the UI thread.',
+    'l4.p': 'car_service.db in the app folder, photos and PDFs beside it. Foreign keys keep the tables honest, three indexes speed the lists up, database work runs off the UI thread.',
 
     'tech.label': 'Code and numbers',
     'tech.h2': 'Flutter, Dart, eight tables and no server side configuration',
