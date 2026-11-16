@@ -1342,3 +1342,109 @@ body { overflow-wrap: break-word; }
 .footer__grid, .footer__bottom { min-width: 0; }
 
 .sec-head, .demo, .hero__copy, .hero__lead, .readout, .calc__out { grid-template-columns: minmax(0, 1fr); }
+
+/* RYSUNKI ZAMIAST PROZY (2026-11-16) ---------------------------------------
+   Diagram cyklu terminu, male plakietki, siatka brudow w kodzie i drzewo plikow
+   w telefonie. Wszystko z tych samych zmiennych motywu, zeby oba motywy
+   wygladaly tak samo bez osobnych regul. */
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-top: var(--s-1);
+  min-width: 0;
+}
+
+.flow__step {
+  flex: 1 1 11rem;
+  min-width: 0;
+  display: grid;
+  gap: .25rem;
+  padding: .75rem .875rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-2);
+  background: var(--bg);
+}
+
+.flow__step b {
+  font: 600 var(--t--1)/1.3 var(--font-display);
+  color: var(--accent-text);
+}
+
+.flow__step span { font-size: var(--t--1); line-height: 1.45; color: var(--text-2); }
+
+.flow__arrow { flex: 0 0 1.25rem; width: 1.25rem; height: 1.25rem; color: var(--accent); }
+
+@media (max-width: 40rem) { .flow__arrow { rotate: 90deg; margin: 0 auto; } }
+
+.minis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .375rem;
+  margin: var(--s-1) 0 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.minis li {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  min-width: 0;
+  padding: .3125rem .625rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  font-size: .75rem;
+  line-height: 1.35;
+  color: var(--text-2);
+}
+
+.minis .i--sm { width: .75rem; height: .75rem; color: var(--accent); flex: 0 0 auto; }
+.minis--tables li { border-style: dashed; font: 500 .6875rem/1.4 var(--font-mono); }
+
+.nogrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: .375rem;
+  margin: var(--s-1) 0 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.nogrid li {
+  display: flex;
+  align-items: center;
+  gap: .375rem;
+  min-width: 0;
+  padding: .5rem .625rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-1);
+  background: var(--bg);
+  font: 500 var(--t--1)/1.3 var(--font-mono);
+  color: var(--text-2);
+}
+
+.nogrid .i--sm { width: .8125rem; height: .8125rem; color: var(--bad); flex: 0 0 auto; }
+
+.card__foot {
+  margin-top: var(--s-15);
+  padding-top: var(--s-15);
+  border-top: 1px dashed var(--line);
+  font-size: var(--t--1);
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.tree { margin-top: var(--s-1); font-size: var(--t--1); line-height: 1.6; min-width: 0; }
+.tree ul { list-style: none; margin: 0; padding-left: .875rem; border-left: 1px dashed var(--line); display: grid; gap: .25rem; }
+.tree > p, .tree li { display: grid; gap: .125rem; padding: .25rem 0; min-width: 0; }
+.tree__row--root b { font: 600 var(--t--05)/1.4 var(--font-text); color: var(--text); }
+.tree .mono { font: 500 .75rem/1.5 var(--font-mono); color: var(--accent-text); overflow-wrap: anywhere; }
+.tree span:not(.mono) { font-size: .75rem; line-height: 1.45; color: var(--text-3); }
+
+.minis li, .nogrid li, .flow__step, .tree .mono { overflow-wrap: anywhere; }
