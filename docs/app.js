@@ -1,6 +1,6 @@
 /* PitStop - strona startowa. Bez CDN, bez pakietów, bez śledzenia.
    Motyw i język zapamiętane w localStorage, animowany licznik przy przewijaniu,
-   trzy kalkulatory logicznie zgodne z lib/domain/calculations.dart,
+   trzy kalkulatory liczone tymi samymi wzorami co w aplikacji (build 2.0),
    podgląd zrzutów ekranu i podświetlenie aktualnej sekcji w menu.
 */
 (() => {
@@ -87,7 +87,7 @@
 
     'demo.label': 'Sprawdź na swoich liczbach',
     'demo.h2': 'Trzy kalkulatory z logiką aplikacji',
-    'demo.lead': 'Strona działa offline i liczy tak jak PitStop: formuły przepisano z lib/domain/calculations.dart i lib/features/garage/garage_shell.dart.',
+    'demo.lead': 'Strona działa offline i liczy tymi samymi wzorami co kalkulatory w aplikacji.',
     'demo.note': 'Kalkulator na potrzeby strony, nie formularz z aplikacji. Twoje liczby zostają w tej karcie przeglądarki.',
     'demo.tab.rem': 'Terminy', 'demo.tab.use': 'Zużycie', 'demo.tab.cost': 'Koszt kilometra',
     'demo.srcRem': 'Termin liczony datą i przebiegiem, jak na pulpicie aplikacji.',
@@ -365,7 +365,7 @@
 
     'demo.label': 'Try it with your own numbers',
     'demo.h2': 'Three calculators with the app logic',
-    'demo.lead': 'The page runs offline and calculates the way PitStop does, with formulas copied from lib/domain/calculations.dart and lib/features/garage/garage_shell.dart.',
+    'demo.lead': 'The page works offline and calculates with the same formulas as the calculators in the app.',
     'demo.note': 'A page calculator, not an app form. Your numbers stay in this browser tab.',
     'demo.tab.rem': 'Reminders', 'demo.tab.use': 'Consumption', 'demo.tab.cost': 'Cost per km',
     'demo.srcRem': 'A reminder counted by date and by mileage, like on the dashboard.',
