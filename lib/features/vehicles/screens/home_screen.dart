@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
+import '../../../core/l10n/app_formats.dart';
 import '../../../data/database/app_database.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../providers/vehicle_providers.dart';
@@ -28,23 +27,23 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: vehiclesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Błąd: $e')),
+        error: (e, _) =>
+            Center(child: Text(context.l10n.errorWithDetails('$e'))),
         data: (vehicles) => vehicles.isEmpty
             ? EmptyState(
                 icon: Icons.directions_car_outlined,
-                title: 'Brak aut',
-                subtitle: 'Dodaj swoje pierwsze auto, żeby śledzić serwisy',
+                title: context.l10n.emptyVehiclesTitle,
+                subtitle: context.l10n.emptyVehiclesBody,
                 action: FilledButton.icon(
                   onPressed: () => context.push('/vehicle/add'),
                   icon: const Icon(Icons.add),
-                  label: const Text('Dodaj auto'),
+                  label: Text(context.l10n.addCarAction),
                 ),
               )
             : ListView.builder(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                 itemCount: vehicles.length,
-                itemBuilder: (context, i) =>
-                    _VehicleCard(vehicle: vehicles[i]),
+                itemBuilder: (context, i) => _VehicleCard(vehicle: vehicles[i]),
               ),
       ),
       floatingActionButton: vehiclesAsync.maybeWhen(
@@ -106,17 +105,16 @@ class _VehicleCard extends StatelessWidget {
                             ?.copyWith(color: cs.onSurfaceVariant)),
                     const SizedBox(height: 4),
                     Text(vehicle.year.toString(),
-                        style: tt.bodySmall
-                            ?.copyWith(color: cs.onSurfaceVariant)),
+                        style:
+                            tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(Icons.speed, size: 14, color: cs.primary),
                         const SizedBox(width: 4),
                         Text(
-                          '${NumberFormat('#,###').format(vehicle.currentMileage)} km',
-                          style: tt.labelMedium
-                              ?.copyWith(color: cs.primary),
+                          context.km(vehicle.currentMileage),
+                          style: tt.labelMedium?.copyWith(color: cs.primary),
                         ),
                       ],
                     ),
@@ -157,8 +155,8 @@ class _CarPhoto extends StatelessWidget {
       width: size,
       height: size,
       color: cs.surfaceVariant,
-      child:
-          Icon(Icons.directions_car, size: size * 0.45, color: cs.onSurfaceVariant),
+      child: Icon(Icons.directions_car,
+          size: size * 0.45, color: cs.onSurfaceVariant),
     );
   }
 }

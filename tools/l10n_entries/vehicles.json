@@ -1,0 +1,268 @@
+{
+  "vehicleNameField": {
+    "pl": "Nazwa (np. Moje BMW)",
+    "en": "Name (e.g. My BMW)",
+    "desc": "Etykieta pola nazwy auta; przykładowa nazwa zostaje typowa dla języka"
+  },
+  "vehicleMakeField": {
+    "pl": "Marka",
+    "en": "Make"
+  },
+  "vehicleModelField": {
+    "pl": "Model",
+    "en": "Model"
+  },
+  "vehicleYearField": {
+    "pl": "Rok",
+    "en": "Year"
+  },
+  "vehiclePlateField": {
+    "pl": "Rejestracja",
+    "en": "Registration"
+  },
+  "vehicleMileageField": {
+    "pl": "Aktualny przebieg (km)",
+    "en": "Current mileage (km)"
+  },
+  "validationInvalidYear": {
+    "pl": "Nieprawidłowy rok",
+    "en": "Invalid year"
+  },
+  "validationVinLength": {
+    "pl": "VIN powinien mieć 17 znaków",
+    "en": "VIN must be 17 characters"
+  },
+  "powertrainField": {
+    "pl": "Napęd",
+    "en": "Powertrain"
+  },
+  "powertrainPetrolLpg": {
+    "pl": "Benzyna + LPG",
+    "en": "Petrol + LPG"
+  },
+  "powertrainHybrid": {
+    "pl": "Hybryda",
+    "en": "Hybrid"
+  },
+  "powertrainPlugInHybrid": {
+    "pl": "Hybryda plug-in",
+    "en": "Plug-in hybrid"
+  },
+  "vehicleTechSection": {
+    "pl": "Dane techniczne i zakup",
+    "en": "Technical details and purchase"
+  },
+  "techDataSection": {
+    "pl": "Dane techniczne",
+    "en": "Technical details"
+  },
+  "technicalNotesField": {
+    "pl": "Notatki techniczne",
+    "en": "Technical notes"
+  },
+  "purchaseDateField": {
+    "pl": "Data zakupu",
+    "en": "Purchase date"
+  },
+  "notSetLabel": {
+    "pl": "Nie ustawiono",
+    "en": "Not set"
+  },
+  "saveChangesAction": {
+    "pl": "Zapisz zmiany",
+    "en": "Save changes"
+  },
+  "newCarTitle": {
+    "pl": "Nowe auto",
+    "en": "New car"
+  },
+  "editCarTitle": {
+    "pl": "Edytuj auto",
+    "en": "Edit car"
+  },
+  "editCarTooltip": {
+    "pl": "Edytuj auto",
+    "en": "Edit car"
+  },
+  "deleteCarAction": {
+    "pl": "Usuń auto",
+    "en": "Delete car"
+  },
+  "deleteCarBody": {
+    "pl": "Czy na pewno chcesz usunąć „{name}”? Wszystkie wpisy serwisowe zostaną usunięte.",
+    "en": "Delete {name}? All its service records will be deleted too.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "vehicleSaveFailed": {
+    "pl": "Nie udało się zapisać auta. Spróbuj ponownie.",
+    "en": "Could not save the car. Try again."
+  },
+  "addPhotoDialogTitle": {
+    "pl": "Dodaj zdjęcie",
+    "en": "Add photo"
+  },
+  "addCarPhotoHint": {
+    "pl": "Dodaj zdjęcie auta",
+    "en": "Add a car photo"
+  },
+  "cameraSource": {
+    "pl": "Aparat",
+    "en": "Camera"
+  },
+  "gallerySource": {
+    "pl": "Galeria",
+    "en": "Gallery"
+  },
+  "emptyVehiclesTitle": {
+    "pl": "Brak aut",
+    "en": "No cars yet"
+  },
+  "emptyVehiclesBody": {
+    "pl": "Dodaj swoje pierwsze auto, żeby śledzić serwisy",
+    "en": "Add your first car to keep track of services"
+  },
+  "remindersSectionTitle": {
+    "pl": "Przypomnienia",
+    "en": "Reminders"
+  },
+  "serviceHistoryTitle": {
+    "pl": "Historia serwisów",
+    "en": "Service history"
+  },
+  "noServiceRecordsTitle": {
+    "pl": "Brak wpisów serwisowych",
+    "en": "No service records"
+  },
+  "noServiceRecordsBody": {
+    "pl": "Dodaj pierwszy wpis używając przycisku poniżej",
+    "en": "Add the first record with the button below"
+  },
+  "serviceCostsTitle": {
+    "pl": "Koszty serwisów",
+    "en": "Service costs"
+  },
+  "entriesCountShort": {
+    "pl": "{count, plural, one{{count} wpis} few{{count} wpisy} many{{count} wpisów} other{{count} wpisów}}",
+    "en": "{count, plural, =1{{count} entry} other{{count} entries}}",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    },
+    "desc": "Liczebnik wpisów bez kwoty, do stopki karty kosztów"
+  },
+  "lastServiceShortLabel": {
+    "pl": "ostatni: {date}",
+    "en": "last: {date}",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "kmRemainingLabel": {
+    "pl": "za {km} km",
+    "en": "in {km} km",
+    "placeholders": {
+      "km": {}
+    }
+  },
+  "overdueAtMileageLabel": {
+    "pl": "po terminie ({km} km)",
+    "en": "overdue ({km} km)",
+    "placeholders": {
+      "km": {}
+    }
+  },
+  "newReminderTitle": {
+    "pl": "Nowy termin",
+    "en": "New due date"
+  },
+  "editReminderTitle": {
+    "pl": "Edytuj termin",
+    "en": "Edit due date"
+  },
+  "reminderPresetInspection": {
+    "pl": "Badanie techniczne",
+    "en": "Vehicle inspection"
+  },
+  "reminderPresetOc": {
+    "pl": "Ubezpieczenie OC",
+    "en": "Third-party liability insurance"
+  },
+  "reminderPresetAc": {
+    "pl": "Ubezpieczenie AC",
+    "en": "Comprehensive insurance"
+  },
+  "reminderPresetTires": {
+    "pl": "Zmiana opon",
+    "en": "Tyre change"
+  },
+  "reminderTitleField": {
+    "pl": "O czym przypomnieć?",
+    "en": "What should we remind you about?"
+  },
+  "selectDateAction": {
+    "pl": "Wybierz termin",
+    "en": "Choose a date"
+  },
+  "removeDateTooltip": {
+    "pl": "Usuń datę",
+    "en": "Remove date"
+  },
+  "targetMileageField": {
+    "pl": "Przebieg docelowy (km)",
+    "en": "Target mileage (km)"
+  },
+  "reminderConditionsHint": {
+    "pl": "Gdy ustawisz oba warunki, obowiązuje wcześniejszy. Przebieg jest sprawdzany po zapisaniu nowego odczytu.",
+    "en": "If you set both conditions, the earlier one applies. Mileage is checked once a new reading is saved."
+  },
+  "repeatSection": {
+    "pl": "Powtarzanie",
+    "en": "Repeating"
+  },
+  "repeatSectionSub": {
+    "pl": "Nowy termin po oznaczeniu jako wykonane",
+    "en": "A new due date appears after you mark it done"
+  },
+  "everyMonthsField": {
+    "pl": "Co ile miesięcy?",
+    "en": "Every how many months?"
+  },
+  "everyKmField": {
+    "pl": "Co ile kilometrów?",
+    "en": "Every how many kilometres?"
+  },
+  "noteOptionalField": {
+    "pl": "Notatka (opcjonalnie)",
+    "en": "Note (optional)"
+  },
+  "saveReminderAction": {
+    "pl": "Zapisz termin",
+    "en": "Save due date"
+  },
+  "reminderNeedsDateOrMileage": {
+    "pl": "Ustaw datę lub przebieg docelowy.",
+    "en": "Set a date or a target mileage."
+  },
+  "reminderSaveFailed": {
+    "pl": "Nie udało się zapisać terminu. Spróbuj ponownie.",
+    "en": "Could not save the due date. Try again."
+  },
+  "validationPositiveNumber": {
+    "pl": "Podaj dodatnią liczbę",
+    "en": "Enter a positive number"
+  },
+  "validationPositiveNumberUpTo": {
+    "pl": "Podaj dodatnią liczbę do {max}",
+    "en": "Enter a positive number up to {max}",
+    "placeholders": {
+      "max": {}
+    }
+  },
+  "validationNonNegativeNumber": {
+    "pl": "Podaj nieujemną liczbę",
+    "en": "Enter a non-negative number"
+  }
+}

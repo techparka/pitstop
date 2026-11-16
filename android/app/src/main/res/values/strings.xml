@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Teksty widoczne w systemie Android, a niewynikające z UI Fluttera.
+  Domyślny język to angielski; polski leży w ../values-pl/.
+  Treść samych powiadomień układa Dart i przekazuje ją kanałem.
+-->
+<resources>
+    <string name="channel_maintenance">Car maintenance due dates</string>
+    <string name="error_busy_request">Finish the previous request first</string>
+    <string name="error_busy_save">Finish the previous save first</string>
+    <string name="error_destination_unwritable">The destination could not be opened</string>
+    <string name="report_footer">Vehicle history • page %1$d</string>
+</resources>

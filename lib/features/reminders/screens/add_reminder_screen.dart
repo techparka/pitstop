@@ -2,224 +2,244 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
+import '../../../core/l10n/app_formats.dart';
+import '../../../core/utils/form_draft.dart';
 import '../../../data/database/app_database.dart';
-import '../../../shared/widgets/service_type_chip.dart';
-import '../providers/reminder_providers.dart';
+import '../../garage/garage_providers.dart';
 
 class AddReminderScreen extends ConsumerStatefulWidget {
   final int vehicleId;
   final int? reminderId;
   const AddReminderScreen(
       {super.key, required this.vehicleId, this.reminderId});
-
   @override
   ConsumerState<AddReminderScreen> createState() => _AddReminderScreenState();
 }
 
 class _AddReminderScreenState extends ConsumerState<AddReminderScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleCtrl = TextEditingController();
-  final _noteCtrl = TextEditingController();
-  final _mileageCtrl = TextEditingController();
-
-  DateTime? _dueDate;
-  ServiceType _type = ServiceType.other;
-  bool _saving = false;
-
-  bool get _isEdit => widget.reminderId != null;
-
+  final form = GlobalKey<FormState>();
+  final title = TextEditingController(),
+      note = TextEditingController(),
+      mileage = TextEditingController(),
+      months = TextEditingController(),
+      interval = TextEditingController();
+  DateTime? date;
+  bool saving = false, loading = true;
+  String type = 'OTHER';
+  FormDraft? draft;
   @override
   void initState() {
     super.initState();
-    if (_isEdit) _loadExisting();
+    init();
   }
 
-  Future<void> _loadExisting() async {
-    final repo = ref.read(reminderRepositoryProvider);
-    final r = await repo.getById(widget.reminderId!);
-    if (r == null) return;
-    setState(() {
-      _titleCtrl.text = r.title;
-      _noteCtrl.text = r.note ?? '';
-      _mileageCtrl.text = r.dueMileage?.toString() ?? '';
-      _dueDate = r.dueDate;
-      _type = ServiceType.fromValue(r.serviceType);
-    });
+  Future<void> init() async {
+    final repo = ref.read(garageRepositoryProvider), db = repo.db;
+    if (widget.reminderId != null) {
+      final r = await (db.select(db.reminders)
+            ..where((r) => r.id.equals(widget.reminderId!)))
+          .getSingleOrNull();
+      if (!mounted) return;
+      if (r == null) {
+        context.pop();
+        return;
+      }
+      title.text = r.title;
+      note.text = r.note ?? '';
+      mileage.text = r.dueMileage?.toString() ?? '';
+      months.text = r.intervalMonths?.toString() ?? '';
+      interval.text = r.intervalKm?.toString() ?? '';
+      date = r.dueDate;
+      type = r.serviceType;
+    }
+    if (!mounted) return;
+    draft = FormDraft(
+        repo,
+        'reminder:${widget.vehicleId}:${widget.reminderId}',
+        {
+          'title': title,
+          'note': note,
+          'mileage': mileage,
+          'months': months,
+          'interval': interval
+        },
+        extra: () => {'date': date?.toIso8601String(), 'type': type},
+        restoreExtra: (d) {
+          date = DateTime.tryParse(d['date'] as String? ?? '');
+          type = d['type'] as String? ?? type;
+        });
+    await draft!.init();
+    if (mounted) setState(() => loading = false);
   }
 
   @override
   void dispose() {
-    _titleCtrl.dispose();
-    _noteCtrl.dispose();
-    _mileageCtrl.dispose();
+    draft?.dispose();
+    for (final c in [title, note, mileage, months, interval]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _dueDate ?? DateTime.now().add(const Duration(days: 30)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-    );
-    if (picked != null) setState(() => _dueDate = picked);
-  }
-
-  Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _saving = true);
-
+  Future<void> save() async {
+    if (saving || !form.currentState!.validate()) return;
+    final l = context.l10n;
+    if (date == null && mileage.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.reminderNeedsDateOrMileage)));
+      return;
+    }
+    setState(() => saving = true);
     try {
-      final repo = ref.read(reminderRepositoryProvider);
-      final mileage = int.tryParse(_mileageCtrl.text);
-
-      if (_isEdit) {
-        await repo.update(RemindersCompanion(
-          id: Value(widget.reminderId!),
+      final db = ref.read(garageRepositoryProvider).db;
+      final entry = RemindersCompanion(
           vehicleId: Value(widget.vehicleId),
-          title: Value(_titleCtrl.text.trim()),
-          note: Value(_noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim()),
-          dueDate: Value(_dueDate),
-          dueMileage: Value(mileage),
-          serviceType: Value(_type.value),
-        ));
+          title: Value(title.text.trim()),
+          note: Value(note.text.trim()),
+          dueDate: Value(date),
+          dueMileage: Value(int.tryParse(mileage.text.trim())),
+          intervalMonths: Value(int.tryParse(months.text.trim())),
+          intervalKm: Value(int.tryParse(interval.text.trim())),
+          serviceType: Value(type));
+      if (widget.reminderId == null) {
+        await db.into(db.reminders).insert(entry);
       } else {
-        await repo.insert(RemindersCompanion.insert(
-          vehicleId: widget.vehicleId,
-          title: _titleCtrl.text.trim(),
-          note: Value(_noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim()),
-          dueDate: Value(_dueDate),
-          dueMileage: Value(mileage),
-          serviceType: Value(_type.value),
-        ));
+        await (db.update(db.reminders)
+              ..where((r) => r.id.equals(widget.reminderId!)))
+            .write(entry);
       }
-
+      await draft?.finish();
       if (mounted) context.pop();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Błąd: $e')));
+            .showSnackBar(SnackBar(content: Text(l.reminderSaveFailed)));
       }
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) setState(() => saving = false);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Edytuj przypomnienie' : 'Nowe przypomnienie'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _titleCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Tytuł',
-                prefixIcon: Icon(Icons.title),
-              ),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Wymagane' : null,
-            ),
-            const SizedBox(height: 16),
-            Text('Typ serwisu',
-                style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: ServiceType.values.map((t) {
-                final selected = _type == t;
-                return FilterChip(
-                  avatar: Icon(t.icon, size: 16),
-                  label: Text(t.label),
-                  selected: selected,
-                  onSelected: (_) => setState(() => _type = t),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            Text('Termin (opcjonalnie)',
-                style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: _pickDate,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Data',
-                        prefixIcon: Icon(Icons.event),
-                      ),
-                      child: Text(
-                        _dueDate != null
-                            ? DateFormat('d MMM yyyy', 'pl_PL').format(_dueDate!)
-                            : 'Brak',
-                        style: TextStyle(
-                            color: _dueDate != null
-                                ? null
-                                : cs.onSurfaceVariant),
-                      ),
-                    ),
-                  ),
-                ),
-                if (_dueDate != null) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    tooltip: 'Wyczyść datę',
-                    onPressed: () => setState(() => _dueDate = null),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _mileageCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Przebieg docelowy (km, opcjonalnie)',
-                prefixIcon: Icon(Icons.speed),
-              ),
+  Widget field(TextEditingController c, String label,
+          {bool number = false,
+          bool positive = false,
+          int lines = 1,
+          bool required = false}) =>
+      Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: TextFormField(
+              controller: c,
+              maxLines: lines,
+              keyboardType: number ? TextInputType.number : TextInputType.text,
+              decoration: InputDecoration(labelText: label),
               validator: (v) {
-                if (v != null && v.isNotEmpty && int.tryParse(v) == null) {
-                  return 'Podaj liczbę';
+                if ((v ?? '').trim().isEmpty) {
+                  return required ? context.l10n.validationRequired : null;
+                }
+                if (number) {
+                  final n = int.tryParse(v!.trim());
+                  if (n == null ||
+                      n < (positive ? 1 : 0) ||
+                      (c == months && n > 120)) {
+                    if (!positive) {
+                      return context.l10n.validationNonNegativeNumber;
+                    }
+                    return c == months
+                        ? context.l10n.validationPositiveNumberUpTo(120)
+                        : context.l10n.validationPositiveNumber;
+                  }
                 }
                 return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _noteCtrl,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notatka (opcjonalnie)',
-                prefixIcon: Icon(Icons.notes),
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 32),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.save),
-              label: Text(_isEdit ? 'Zapisz zmiany' : 'Dodaj przypomnienie'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+              }));
+  @override
+  Widget build(BuildContext context) => DraftExit(
+      busy: saving,
+      onLeave: () async => saving ? false : await draft?.leave(context) ?? true,
+      child: Scaffold(
+          appBar: AppBar(
+              title: Text(widget.reminderId == null
+                  ? context.l10n.newReminderTitle
+                  : context.l10n.editReminderTitle)),
+          body: loading
+              ? const Center(child: CircularProgressIndicator())
+              : Form(
+                  key: form,
+                  child: ListView(padding: const EdgeInsets.all(20), children: [
+                    Wrap(
+                        spacing: 8,
+                        children: [
+                          // Gotowe tytuły to dane terminu, więc wolno je tłumaczyć.
+                          context.l10n.serviceTypeOilChange,
+                          context.l10n.reminderPresetInspection,
+                          context.l10n.reminderPresetOc,
+                          context.l10n.reminderPresetAc,
+                          context.l10n.reminderPresetTires
+                        ]
+                            .map((t) => ActionChip(
+                                label: Text(t),
+                                onPressed: () => title.text = t))
+                            .toList()),
+                    const SizedBox(height: 16),
+                    field(title, context.l10n.reminderTitleField,
+                        required: true),
+                    Card(
+                        child: ListTile(
+                            leading: const Icon(Icons.event_outlined),
+                            title: Text(context.l10n.dateFieldLabel),
+                            subtitle: Text(date == null
+                                ? context.l10n.selectDateAction
+                                : context.fmt.dateLong(date!)),
+                            trailing: date == null
+                                ? null
+                                : IconButton(
+                                    tooltip:
+                                        context.l10n.removeDateTooltip,
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      setState(() => date = null);
+                                      draft?.changed();
+                                    }),
+                            onTap: () async {
+                              final d = await showDatePicker(
+                                  context: context,
+                                  initialDate: date ??
+                                      DateTime.now()
+                                          .add(const Duration(days: 30)),
+                                  firstDate: DateTime(1990),
+                                  lastDate: DateTime.now()
+                                      .add(const Duration(days: 365 * 10)));
+                              if (d != null) {
+                                setState(() => date = d);
+                                draft?.changed();
+                              }
+                            })),
+                    const SizedBox(height: 8),
+                    field(mileage, context.l10n.targetMileageField,
+                        number: true),
+                    Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child:
+                            Text(context.l10n.reminderConditionsHint)),
+                    ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        initiallyExpanded:
+                            months.text.isNotEmpty || interval.text.isNotEmpty,
+                        title: Text(context.l10n.repeatSection),
+                        subtitle: Text(context.l10n.repeatSectionSub),
+                        children: [
+                          field(months, context.l10n.everyMonthsField,
+                              number: true, positive: true),
+                          field(interval, context.l10n.everyKmField,
+                              number: true, positive: true)
+                        ]),
+                    const SizedBox(height: 16),
+                    field(note, context.l10n.noteOptionalField, lines: 3),
+                    FilledButton.icon(
+                        onPressed: saving ? null : save,
+                        icon: const Icon(Icons.notifications_active_outlined),
+                        label: Text(saving
+                            ? context.l10n.savingLabel
+                            : context.l10n.saveReminderAction)),
+                    const SizedBox(height: 24)
+                  ]))));
 }

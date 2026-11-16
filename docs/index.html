@@ -42,8 +42,8 @@
   "operatingSystem": "Android 5.0 and later",
   "applicationCategory": "FinanceApplication",
   "url": "https://techparka.github.io/pitstop/",
-  "description": "PitStop to darmowa aplikacja na Androida do prowadzenia historii serwisowej auta. Terminy, rachunki, tankowania i kopie danych trzymane lokalnie, bez konta i bez internetu. Repozytorium publikuje wersję 1.0.0, zrzuty ekranu pokazują budowaną 2.0.",
-  "softwareVersion": "1.0.0",
+  "description": "PitStop to darmowa aplikacja na Androida do prowadzenia historii serwisowej auta. Terminy, rachunki, tankowania i kopie danych trzymane lokalnie, bez konta i bez internetu. Repozytorium i zrzuty przedstawiają wersję 2.0.",
+  "softwareVersion": "2.0.0",
   "license": "https://opensource.org/licenses/MIT",
   "isAccessibleForFree": true,
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
@@ -94,10 +94,10 @@
     },
     {
       "@type": "Question",
-      "name": "Czym wersja z repozytorium różni się od wersji ze zrzutów?",
+      "name": "Czy zrzuty pokazują wersję z repozytorium?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "W repozytorium jest 1.0.0: historia serwisów, proste terminy, statystyki i baza ze schematem numer 2. Zrzuty zrobiono w buildzie 2.0.0+2 ze schematem 3: księga tankowań i wydatków, terminy w cyklu z alarmami, kopia ZIP, import CSV, raport PDF i części z robocizną. Dwójki jeszcze nie ma na GitHubie."
+        "text": "Tak. Kod i zrzuty przedstawiają wersję 2.0.0+2 ze schematem bazy 3. Obejmuje ona księgę wydatków, cykliczne terminy, kopie ZIP, CSV i raport PDF."
       }
     },
     {
@@ -169,7 +169,7 @@
       </span>
       <span class="brand__text">
         <span class="brand__name">PitStop</span>
-        <span class="brand__ver">v<span data-version>1.0.0</span></span>
+        <span class="brand__ver">v<span data-version>2.0.0</span></span>
       </span>
     </a>
 
@@ -225,8 +225,8 @@
         </a>
       </div>
       <p class="hero__status">
-        <span class="hero__status-a" data-i18n="hero.statusA">W repozytorium wersja 1.0.0.</span>
-        <span data-i18n="hero.statusB">Zrzuty ekranu zrobiono w lokalnym buildzie 2.0.0+2, jeszcze nieopublikowanym.</span>
+        <span class="hero__status-a" data-i18n="hero.statusA">W repozytorium wersja 2.0.0.</span>
+        <span data-i18n="hero.statusB">Zrzuty ekranu pochodzą z wersji 2.0.0+2.</span>
         <a href="#faq-note" data-i18n="hero.statusLink">Czym różni się 2.0</a>
       </p>
     </div>
@@ -248,7 +248,7 @@
     </div>
     <div class="fact">
       <div class="fact__num"><span data-count="4761">4761</span></div>
-      <div class="fact__meta"><span class="fact__label" data-i18n="fact2.label">linii Dart w wersji 1.0</span><span class="fact__src" data-i18n="fact2.src">23 pliki .dart w repozytorium</span></div>
+      <div class="fact__meta"><span class="fact__label" data-i18n="fact2.label">linii Dart w wersji 1.0</span><span class="fact__src" data-i18n="fact2.src">23 pliki .dart w wersji 1.0</span></div>
     </div>
     <div class="fact">
       <div class="fact__num"><span data-count="0">0</span></div>
@@ -267,7 +267,7 @@
     <div class="sec-head reveal">
       <p class="overline" data-i18n="features.label">Co jest w środku</p>
       <h2 data-i18n="features.h2">Funkcje, których używa się co tydzień</h2>
-      <p class="lead" data-i18n="features.lead">Każda funkcja ma swój ekran i swoje miejsce w bazie. Przy każdej stoi plakietka wersji: 1.0 jest w repozytorium, 2.0 czeka na publikację.</p>
+      <p class="lead" data-i18n="features.lead">Każda funkcja ma swój ekran i swoje miejsce w bazie. Plakietki pokazują wersję, w której pojawiła się dana funkcja.</p>
     </div>
 
     <div class="bento reveal">
@@ -772,7 +772,7 @@
       <div class="number">
         <div class="number__num"><span data-count="4761">4761</span></div>
         <div class="number__label" data-i18n="t3l">linii Dart w wersji 1.0</div>
-        <div class="number__src" data-i18n="t3s">23 pliki w <code>lib/</code></div>
+        <div class="number__src" data-i18n="t3s">23 pliki w wersji 1.0</div>
       </div>
       <div class="number">
         <div class="number__num"><span data-count="8">8</span></div>
@@ -792,7 +792,7 @@
           <li><code>flutter test</code></li>
           <li><code>flutter build apk --release</code></li>
         </ol>
-        <p class="note" data-i18n="tech.buildhint">Od Fluttera 3.16 wzwyż, z dodatkami Androida. Czwarty krok generuje kody Drifta, bo plików <code>.g.dart</code> nie ma w repozytorium.</p>
+        <p class="note" data-i18n="tech.buildhint">Flutter 3.16.9 i narzędzia Androida. Generowanie aktualizuje kod Drifta po zmianach schematu.</p>
       </div>
       <div class="card">
         <p class="overline" data-i18n="tech.stack">Czego użyto</p>
@@ -900,8 +900,8 @@
       <p data-i18n="a3">W pliku car_service.db w katalogu aplikacji, obok zdjęć i PDF-ów. Kopia to ZIP z katalogu backups, bez szyfrowania.</p>
     </details>
     <details class="faq reveal">
-      <summary data-i18n="q5">Czym wersja z repozytorium różni się od wersji ze zrzutów?</summary>
-      <p data-i18n="a5">W repozytorium jest 1.0.0: historia serwisów, proste terminy, statystyki i baza ze schematem numer 2. Zrzuty zrobiono w buildzie 2.0.0+2 ze schematem 3: księga tankowań i wydatków, terminy w cyklu z alarmami, kopia ZIP, import CSV, raport PDF i części z robocizną. Dwójki jeszcze nie ma na GitHubie.</p>
+      <summary data-i18n="q5">Czy zrzuty pokazują wersję z repozytorium?</summary>
+      <p data-i18n="a5">Tak. Kod i zrzuty przedstawiają wersję 2.0.0+2 ze schematem bazy 3. Obejmuje ona księgę wydatków, cykliczne terminy, kopie ZIP, CSV i raport PDF.</p>
     </details>
     <details class="faq reveal">
       <summary data-i18n="q7">Po co aplikacji aparat i zdjęcia?</summary>
@@ -938,7 +938,7 @@
         <span class="brand__name">PitStop</span>
       </div>
       <p class="footer__about" data-i18n="footer.about">Historia serwisowa auta w telefonie, bez konta i bez internetu. Kod na licencji MIT.</p>
-      <p class="footer__ver">W repozytorium <span data-version>1.0.0</span>. Strona i zrzuty: build 2.0.0+2.</p>
+      <p class="footer__ver">W repozytorium <span data-version>2.0.0</span>. Kod i zrzuty: build 2.0.0+2.</p>
     </div>
     <div>
       <p class="footer__h">GitHub</p>

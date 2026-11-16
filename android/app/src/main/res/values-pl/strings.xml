@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_maintenance">Terminy samochodu</string>
+    <string name="error_busy_request">Zakończ poprzednią prośbę</string>
+    <string name="error_busy_save">Zakończ poprzedni zapis</string>
+    <string name="error_destination_unwritable">Nie można otworzyć miejsca docelowego</string>
+    <string name="report_footer">Historia pojazdu • strona %1$d</string>
+</resources>

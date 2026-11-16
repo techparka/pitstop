@@ -1,412 +1,616 @@
+import 'dart:io';
 import 'package:drift/drift.dart' show Value;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-
+import '../../../core/l10n/app_formats.dart';
+import '../../../core/l10n/labels.dart';
 import '../../../core/utils/file_helper.dart';
+import '../../../core/utils/form_draft.dart';
 import '../../../data/database/app_database.dart';
 import '../../../shared/widgets/service_type_chip.dart';
-import '../../services/providers/service_providers.dart';
-import '../../vehicles/providers/vehicle_providers.dart';
+import '../../garage/garage_providers.dart';
+import '../providers/service_providers.dart';
 
 class AddServiceScreen extends ConsumerStatefulWidget {
   final int vehicleId;
   final int? serviceId;
-  const AddServiceScreen(
-      {super.key, required this.vehicleId, this.serviceId});
-
+  const AddServiceScreen({super.key, required this.vehicleId, this.serviceId});
   @override
   ConsumerState<AddServiceScreen> createState() => _AddServiceScreenState();
 }
 
+class _Item {
+  final TextEditingController name, cost;
+  String kind;
+  // Domyślna wartość to słownik bazy (`service_items.kind`), a nie etykieta.
+  // Polskie brzmienie tłumaczy `itemKindLabel`, lista wartości: `itemKindValues`.
+  _Item({String name = '', String cost = '', this.kind = 'Część'})
+      : name = TextEditingController(text: name),
+        cost = TextEditingController(text: cost);
+  void dispose() {
+    name.dispose();
+    cost.dispose();
+  }
+}
+
 class _AddServiceScreenState extends ConsumerState<AddServiceScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleCtrl = TextEditingController();
-  final _descCtrl = TextEditingController();
-  final _mileageCtrl = TextEditingController();
-  final _costCtrl = TextEditingController();
-  final _workshopCtrl = TextEditingController();
-
-  DateTime _date = DateTime.now();
-  ServiceType _type = ServiceType.other;
-  bool _saving = false;
-
-  // Pending attachments to add (before save)
-  final List<_PendingAttachment> _pending = [];
-  // Existing attachments (edit mode)
-  List<Attachment> _existing = [];
-  // IDs to delete (edit mode)
-  final Set<int> _toDelete = {};
-
-  bool get _isEdit => widget.serviceId != null;
-
+  final form = GlobalKey<FormState>();
+  final title = TextEditingController(),
+      desc = TextEditingController(),
+      mileage = TextEditingController(),
+      cost = TextEditingController(),
+      workshop = TextEditingController();
+  DateTime date = DateTime.now();
+  String category = 'OTHER';
+  bool saving = false, loading = true;
+  List<Attachment> existing = [];
+  Set<int> removed = {};
+  List<({String path, String name, String type})> pending = [];
+  List<_Item> items = [];
+  List<ServiceRecord> previous = [];
+  List<String> custom = [];
+  FormDraft? draft;
+  /// Kwota w groszach waluty bazowej. Pole może być w walucie pokazowej,
+  /// dlatego przeliczenia dokonuje `AppFormats`, a nie `Money` wprost.
+  int? get cents => items.isEmpty
+      ? context.fmt.parseMoney(cost.text)
+      : items.fold<int>(
+          0, (sum, i) => sum + (context.fmt.parseMoney(i.cost.text) ?? 0));
   @override
   void initState() {
     super.initState();
-    if (_isEdit) _loadExisting();
+    init();
   }
 
-  Future<void> _loadExisting() async {
-    final repo = ref.read(serviceRepositoryProvider);
-    final s = await repo.getById(widget.serviceId!);
-    final atts = await repo.getAttachments(widget.serviceId!);
-    setState(() {
-      _titleCtrl.text = s.title;
-      _descCtrl.text = s.description ?? '';
-      _mileageCtrl.text = s.mileage?.toString() ?? '';
-      _costCtrl.text = s.cost?.toStringAsFixed(2) ?? '';
-      _workshopCtrl.text = s.workshop ?? '';
-      _date = s.serviceDate;
-      _type = ServiceType.fromValue(s.serviceType);
-      _existing = atts;
-    });
+  Future<void> init() async {
+    // Formaty i teksty brane przed `await`ami — po nich kontekst może już
+    // nie należeć do żywego widżetu.
+    final fmt = context.fmt, l = context.l10n;
+    final repo = ref.read(garageRepositoryProvider),
+        svc = ref.read(serviceRepositoryProvider),
+        db = repo.db;
+    try {
+      previous = await (db.select(db.serviceRecords)
+            ..where((s) => s.vehicleId.equals(widget.vehicleId)))
+          .get();
+      custom = (await db.select(db.customCategories).get())
+          .map((c) => c.name)
+          .toList();
+      if (widget.serviceId != null) {
+        final s = await svc.getById(widget.serviceId!);
+        if (!mounted) return;
+        title.text = s.title;
+        desc.text = s.description ?? '';
+        mileage.text = s.mileage?.toString() ?? '';
+        cost.text =
+            s.costCents == null ? '' : fmt.moneyInput(s.costCents!);
+        workshop.text = s.workshop ?? '';
+        date = s.serviceDate;
+        category = s.serviceType;
+        existing = await svc.getAttachments(s.id);
+        final rows = await (db.select(db.serviceItems)
+              ..where((i) => i.serviceId.equals(s.id)))
+            .get();
+        items = rows
+            .map((i) => _Item(
+                name: i.name,
+                cost: fmt.moneyInput(i.amountCents),
+                kind: i.kind))
+            .toList();
+      }
+      if (!mounted) return;
+      draft = FormDraft(
+          repo,
+          'service:${widget.vehicleId}:${widget.serviceId}',
+          {
+            'title': title,
+            'desc': desc,
+            'mileage': mileage,
+            'cost': cost,
+            'workshop': workshop
+          },
+          extra: () => {
+                'date': date.toIso8601String(),
+                'category': category,
+                'pending': pending
+                    .map(
+                        (a) => {'path': a.path, 'name': a.name, 'type': a.type})
+                    .toList(),
+                'removed': removed.toList(),
+                'items': items
+                    .map((i) => {
+                          'name': i.name.text,
+                          'cost': i.cost.text,
+                          'kind': i.kind
+                        })
+                    .toList()
+              },
+          restoreExtra: (d) {
+            date = DateTime.tryParse(d['date'] as String? ?? '') ?? date;
+            category = d['category'] as String? ?? category;
+            removed = (d['removed'] as List? ?? []).cast<int>().toSet();
+            pending = (d['pending'] as List? ?? [])
+                .map((a) => (
+                      path: a['path'] as String,
+                      name: a['name'] as String,
+                      type: a['type'] as String
+                    ))
+                .where((a) => File(a.path).existsSync())
+                .toList();
+            for (final i in items) {
+              i.dispose();
+            }
+            items = (d['items'] as List? ?? [])
+                .map((i) => _Item(
+                    name: i['name'] as String,
+                    cost: i['cost'] as String,
+                    kind: i['kind'] as String))
+                .toList();
+          });
+      await draft!.init();
+      for (final i in items) {
+        listen(i);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.serviceLoadFailed)));
+      }
+    }
+    if (mounted) setState(() => loading = false);
+  }
+
+  void listen(_Item i) {
+    i.name.addListener(changed);
+    i.cost.addListener(changed);
+  }
+
+  void changed() {
+    if (mounted) setState(() {});
+    draft?.changed();
   }
 
   @override
   void dispose() {
-    _titleCtrl.dispose();
-    _descCtrl.dispose();
-    _mileageCtrl.dispose();
-    _costCtrl.dispose();
-    _workshopCtrl.dispose();
+    draft?.dispose();
+    for (final c in [title, desc, mileage, cost, workshop]) {
+      c.dispose();
+    }
+    for (final i in items) {
+      i.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: DateTime(1990),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) setState(() => _date = picked);
-  }
-
-  Future<void> _addPhoto() async {
-    final source = await showDialog<ImageSource>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Dodaj zdjęcie'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Aparat'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera)),
-          ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Galeria'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
-        ]),
-      ),
-    );
+  Future<void> photo() async {
+    final l = context.l10n;
+    final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        showDragHandle: true,
+        builder: (c) => SafeArea(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+              ListTile(
+                  leading: const Icon(Icons.camera_alt_outlined),
+                  title: Text(c.l10n.takePhotoAction),
+                  onTap: () => Navigator.pop(c, ImageSource.camera)),
+              ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: Text(c.l10n.fromGalleryAction),
+                  onTap: () => Navigator.pop(c, ImageSource.gallery))
+            ])));
     if (source == null) return;
-    final picked = await ImagePicker()
-        .pickImage(source: source, maxWidth: 1600, imageQuality: 85);
-    if (picked != null) {
-      setState(() => _pending.add(_PendingAttachment(
-          path: picked.path,
-          name: picked.name,
-          type: 'IMAGE')));
-    }
-  }
-
-  Future<void> _addPdf() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (result != null && result.files.single.path != null) {
-      final f = result.files.single;
-      setState(() => _pending.add(_PendingAttachment(
-          path: f.path!, name: f.name, type: 'PDF')));
-    }
-  }
-
-  Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _saving = true);
-
     try {
-      final svcRepo = ref.read(serviceRepositoryProvider);
-      final vehRepo = ref.read(vehicleRepositoryProvider);
-
-      final mileage = int.tryParse(_mileageCtrl.text);
-      final cost = double.tryParse(_costCtrl.text.replaceAll(',', '.'));
-
-      int serviceId;
-
-      if (_isEdit) {
-        serviceId = widget.serviceId!;
-        await svcRepo.update(ServiceRecordsCompanion(
-          id: Value(serviceId),
-          vehicleId: Value(widget.vehicleId),
-          title: Value(_titleCtrl.text.trim()),
-          description: Value(_descCtrl.text.trim().isEmpty
-              ? null
-              : _descCtrl.text.trim()),
-          serviceDate: Value(_date),
-          mileage: Value(mileage),
-          cost: Value(cost),
-          serviceType: Value(_type.value),
-          workshop: Value(_workshopCtrl.text.trim().isEmpty
-              ? null
-              : _workshopCtrl.text.trim()),
-        ));
-        // Delete marked attachments
-        for (final id in _toDelete) {
-          final att = _existing.firstWhere((a) => a.id == id);
-          await FileHelper.deleteFile(att.filePath);
-          await svcRepo.deleteAttachment(id);
-        }
-      } else {
-        serviceId = await svcRepo.insert(ServiceRecordsCompanion.insert(
-          vehicleId: widget.vehicleId,
-          title: _titleCtrl.text.trim(),
-          description: Value(_descCtrl.text.trim().isEmpty
-              ? null
-              : _descCtrl.text.trim()),
-          serviceDate: _date,
-          mileage: Value(mileage),
-          cost: Value(cost),
-          serviceType: Value(_type.value),
-          workshop: Value(_workshopCtrl.text.trim().isEmpty
-              ? null
-              : _workshopCtrl.text.trim()),
-        ));
-      }
-
-      // Copy pending attachments
-      for (final att in _pending) {
-        final dest = await FileHelper.copyServiceAttachment(
-            att.path, serviceId, att.name);
-        await svcRepo.insertAttachment(AttachmentsCompanion.insert(
-          serviceRecordId: serviceId,
-          filePath: dest,
-          fileType: att.type,
-          fileName: att.name,
-        ));
-      }
-
-      // Update vehicle mileage if new mileage is higher
-      if (mileage != null) {
-        final v = await vehRepo.getById(widget.vehicleId);
-        if (mileage > v.currentMileage) {
-          await vehRepo.updateFields(
-            widget.vehicleId,
-            VehiclesCompanion(currentMileage: Value(mileage)),
-          );
+      final image = await ImagePicker()
+          .pickImage(source: source, maxWidth: 1800, imageQuality: 85);
+      if (image != null) {
+        final path = await FileHelper.prepareAttachment(image.path);
+        if (mounted) {
+          pending.add((path: path, name: image.name, type: 'IMAGE'));
+          changed();
         }
       }
+    } catch (e) {
+      failureIfMounted(l.photoAddFailed);
+    }
+  }
 
+  Future<void> pickInvoice() async {
+    final l = context.l10n;
+    try {
+      final files = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', ...FileHelper.invoiceImageExtensions],
+      );
+      final file = files?.files.single;
+      final sourcePath = file?.path;
+      if (file == null || sourcePath == null) return;
+
+      final path = await FileHelper.prepareAttachment(sourcePath);
+      if (!mounted) return;
+      pending.add((
+        path: path,
+        name: file.name,
+        type: FileHelper.isInvoiceImagePath(file.name) ||
+                FileHelper.isInvoiceImagePath(sourcePath)
+            ? 'INVOICE_IMAGE'
+            : 'PDF',
+      ));
+      changed();
+    } catch (e) {
+      failureIfMounted(l.invoiceAddFailed);
+    }
+  }
+
+  /// Komunikat tylko gdy widżet wciąż żyje — formularz przeżywa błąd zapisu.
+  void failureIfMounted(String text) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+    }
+  }
+
+  Future<void> save() async {
+    if (saving || !form.currentState!.validate()) return;
+    final l = context.l10n, fmt = context.fmt;
+    setState(() => saving = true);
+    try {
+      final repo = ref.read(garageRepositoryProvider);
+      if (await repo.duplicate(widget.vehicleId, title.text, date, cents,
+              excludeId: widget.serviceId) &&
+          mounted) {
+        final ok = await showDialog<bool>(
+            context: context,
+            builder: (c) => AlertDialog(
+                    title: Text(l.duplicateServiceTitle),
+                    content: Text(l.duplicateServiceBody),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(c, false),
+                          child: Text(l.goBackAction)),
+                      FilledButton(
+                          onPressed: () => Navigator.pop(c, true),
+                          child: Text(l.saveAnotherAction))
+                    ]));
+        if (ok != true) return;
+      }
+      await ref.read(serviceRepositoryProvider).save(
+          ServiceRecordsCompanion(
+              id: widget.serviceId == null
+                  ? const Value.absent()
+                  : Value(widget.serviceId!),
+              vehicleId: Value(widget.vehicleId),
+              title: Value(title.text.trim()),
+              description:
+                  Value(desc.text.trim().isEmpty ? null : desc.text.trim()),
+              serviceDate: Value(date),
+              mileage: Value(int.tryParse(mileage.text.trim())),
+              cost: Value(cents == null ? null : cents! / 100),
+              costCents: Value(cents),
+              serviceType: Value(category),
+              workshop: Value(
+                  workshop.text.trim().isEmpty ? null : workshop.text.trim())),
+          isEdit: widget.serviceId != null,
+          attachments: pending,
+          deleteAttachmentIds: removed,
+          items: items
+              .map((i) => (
+                    name: i.name.text.trim(),
+                    kind: i.kind,
+                    cents: fmt.parseMoney(i.cost.text)!
+                  ))
+              .toList());
+      await draft?.finish();
+      for (final a in pending) {
+        try {
+          await FileHelper.deleteFile(a.path);
+        } on FileSystemException {/* temporary copy */}
+      }
       if (mounted) context.pop();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Błąd: $e')));
-      }
+      failureIfMounted(l.serviceSaveFailed);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) setState(() => saving = false);
     }
   }
 
+  /// Pole tekstowe; walidacja zwraca kod błędu, a tekst dopiero tu trafia do
+  /// bieżącego języka — stąd `String Function(String?)?` zamiast tekstu.
+  Widget field(TextEditingController c, String label,
+          {bool number = false,
+          bool decimal = false,
+          int lines = 1,
+          String? Function(String?)? validator,
+          bool enabled = true}) =>
+      Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: TextFormField(
+              controller: c,
+              enabled: enabled,
+              keyboardType: number
+                  ? TextInputType.numberWithOptions(decimal: decimal)
+                  : TextInputType.text,
+              maxLines: lines,
+              decoration: InputDecoration(labelText: label),
+              validator: validator));
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Edytuj serwis' : 'Nowy serwis'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _titleCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Tytuł',
-                prefixIcon: Icon(Icons.title),
-              ),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Wymagane' : null,
-            ),
-            const SizedBox(height: 16),
-            Text('Typ serwisu',
-                style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: ServiceType.values.map((t) {
-                final selected = _type == t;
-                return FilterChip(
-                  avatar: Icon(t.icon, size: 16),
-                  label: Text(t.label),
-                  selected: selected,
-                  onSelected: (_) => setState(() => _type = t),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            InkWell(
-              onTap: _pickDate,
-              borderRadius: BorderRadius.circular(12),
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Data serwisu',
-                  prefixIcon: Icon(Icons.event),
-                ),
-                child: Text(DateFormat('d MMMM yyyy', 'pl_PL').format(_date)),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _mileageCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Przebieg (km)',
-                      prefixIcon: Icon(Icons.speed),
-                    ),
-                    validator: (v) {
-                      if (v != null && v.isNotEmpty && int.tryParse(v) == null) {
-                        return 'Podaj liczbę';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _costCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Koszt (zł)',
-                      prefixIcon: Icon(Icons.payments_outlined),
-                    ),
-                    validator: (v) {
-                      if (v != null && v.isNotEmpty) {
-                        final d = double.tryParse(v.replaceAll(',', '.'));
-                        if (d == null) return 'Nieprawidłowa kwota';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _workshopCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Warsztat (opcjonalnie)',
-                prefixIcon: Icon(Icons.store_outlined),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descCtrl,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Opis (opcjonalnie)',
-                prefixIcon: Icon(Icons.notes),
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text('Załączniki',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            // Existing attachments (edit mode)
-            ..._existing
-                .where((a) => !_toDelete.contains(a.id))
-                .map((a) => _AttachmentTile(
-                      name: a.fileName,
-                      type: a.fileType,
-                      onDelete: () =>
-                          setState(() => _toDelete.add(a.id)),
-                    )),
-            // Pending new attachments
-            ..._pending.asMap().entries.map((e) => _AttachmentTile(
-                  name: e.value.name,
-                  type: e.value.type,
-                  onDelete: () =>
-                      setState(() => _pending.removeAt(e.key)),
-                )),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _addPhoto,
-                    icon: const Icon(Icons.photo_camera_outlined),
-                    label: const Text('Zdjęcie'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _addPdf,
-                    icon: const Icon(Icons.picture_as_pdf_outlined),
-                    label: const Text('PDF / Faktura'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.save),
-              label: Text(_isEdit ? 'Zapisz zmiany' : 'Dodaj wpis'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PendingAttachment {
-  final String path;
-  final String name;
-  final String type;
-  const _PendingAttachment(
-      {required this.path, required this.name, required this.type});
-}
-
-class _AttachmentTile extends StatelessWidget {
-  final String name;
-  final String type;
-  final VoidCallback onDelete;
-
-  const _AttachmentTile(
-      {required this.name, required this.type, required this.onDelete});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(
-        type == 'PDF' ? Icons.picture_as_pdf : Icons.image_outlined,
-        color: type == 'PDF' ? Colors.red : Colors.blue,
-      ),
-      title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: onDelete,
-      ),
-    );
+    final cats = {
+      for (final t in ServiceType.values) t.value: t.label(context),
+      for (final c in custom) c: c
+    };
+    // Szablony to gotowe tytuły wraz z kategorią, jaką mają ustawić. Wcześniejsze
+    // rozpoznawanie po polskich słowach w tytule ('oleju', 'opon') nie przeżyło
+    // angielskiej wersji językowej.
+    final templates = {
+      context.l10n.templateOilChange: 'OIL_CHANGE',
+      context.l10n.templateTires: 'TIRES',
+      context.l10n.templateInspection: 'INSPECTION',
+    };
+    if (!cats.containsKey(category)) cats[category] = category;
+    return DraftExit(
+        busy: saving,
+        onLeave: () async =>
+            saving ? false : await draft?.leave(context) ?? true,
+        child: Scaffold(
+            appBar: AppBar(
+                title: Text(widget.serviceId == null
+                    ? context.l10n.newServiceTitle
+                    : context.l10n.editServiceTitle)),
+            body: loading
+                ? const Center(child: CircularProgressIndicator())
+                : Form(
+                    key: form,
+                    child:
+                        ListView(padding: const EdgeInsets.all(20), children: [
+                      if (widget.serviceId == null)
+                        PopupMenuButton<String>(
+                            tooltip: context.l10n.templateTooltip,
+                            onSelected: (v) {
+                              final matches =
+                                  previous.where((s) => s.title == v);
+                              if (matches.isNotEmpty) {
+                                final s = matches.last;
+                                title.text = s.title;
+                                desc.text = s.description ?? '';
+                                workshop.text = s.workshop ?? '';
+                                cost.text = s.costCents == null
+                                    ? ''
+                                    : context.fmt
+                                        .moneyInput(s.costCents!);
+                                category = s.serviceType;
+                              } else {
+                                title.text = v;
+                                category = templates[v] ?? 'INSPECTION';
+                              }
+                              changed();
+                            },
+                            itemBuilder: (c) => {
+                                  ...templates.keys,
+                                  ...previous.map((s) => s.title)
+                                }
+                                    .take(30)
+                                    .map((s) =>
+                                        PopupMenuItem(value: s, child: Text(s)))
+                                    .toList(),
+                            child: Padding(
+                                padding: const EdgeInsets.only(bottom: 18),
+                                child: Row(children: [
+                                  const Icon(Icons.auto_awesome_outlined),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                      child: Text(
+                                          context.l10n.useTemplateAction))
+                                ]))),
+                      field(title, context.l10n.serviceTitleField,
+                          validator: (v) => (v ?? '').trim().isEmpty
+                              ? context.l10n.validationTitleRequired
+                              : null),
+                      DropdownButtonFormField<String>(
+                          value: category,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                              labelText: context.l10n.categoryField),
+                          items: cats.entries
+                              .map((e) => DropdownMenuItem(
+                                  value: e.key, child: Text(e.value)))
+                              .toList(),
+                          onChanged: (v) {
+                            category = v!;
+                            changed();
+                          }),
+                      const SizedBox(height: 16),
+                      Card(
+                          child: ListTile(
+                              leading: const Icon(Icons.event_outlined),
+                              title: Text(context.l10n.serviceDateField),
+                              subtitle:
+                                  Text(context.fmt.dateLong(date)),
+                              onTap: () async {
+                                final d = await showDatePicker(
+                                    context: context,
+                                    initialDate: date,
+                                    firstDate: DateTime(1990),
+                                    lastDate: DateTime.now());
+                                if (d != null) {
+                                  date = d;
+                                  changed();
+                                }
+                              })),
+                      const SizedBox(height: 4),
+                      field(mileage, context.l10n.mileageField,
+                          number: true,
+                          validator: (v) {
+                        if ((v ?? '').trim().isEmpty) return null;
+                        final n = int.tryParse(v!.trim());
+                        return n == null || n < 0
+                            ? context.l10n.validationMileageNonNegative
+                            : null;
+                      }),
+                      if (items.isEmpty)
+                        field(
+                            cost,
+                            context.l10n.costField(
+                                context.fmt.currency.code),
+                            number: true,
+                            decimal: true,
+                            validator: (v) => (v ?? '').trim().isEmpty ||
+                                    context.fmt.parseMoney(v!) != null
+                                ? null
+                                : context.l10n.validationAmount)
+                      else
+                        Card(
+                            child: ListTile(
+                                title:
+                                    Text(context.l10n.partsTotalLabel),
+                                trailing: Text(context.fmt.money(cents ?? 0),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge))),
+                      ExpansionTile(
+                          tilePadding: EdgeInsets.zero,
+                          initiallyExpanded: items.isNotEmpty,
+                          title: Text(context.l10n.serviceItemsSection),
+                          subtitle: Text(context.l10n.partsSectionSub),
+                          children: [
+                            ...items.asMap().entries.map((e) => Card(
+                                child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Column(children: [
+                                      Row(children: [
+                                        Expanded(
+                                            child: DropdownButton<String>(
+                                                isExpanded: true,
+                                                value: e.value.kind,
+                                                // Wartość w bazie zostaje polska,
+                                                // tłumaczymy tylko etykietę.
+                                                items: itemKindValues
+                                                    .map((k) => DropdownMenuItem(
+                                                        value: k,
+                                                        child: Text(itemKindLabel(
+                                                            context, k))))
+                                                    .toList(),
+                                                onChanged: (v) {
+                                                  e.value.kind = v!;
+                                                  changed();
+                                                })),
+                                        IconButton(
+                                            tooltip:
+                                                context.l10n.removeItemTooltip,
+                                            onPressed: () {
+                                              final i = items.removeAt(e.key);
+                                              i.dispose();
+                                              changed();
+                                            },
+                                            icon: const Icon(Icons.close))
+                                      ]),
+                                      field(e.value.name,
+                                          context.l10n.itemNameField,
+                                          validator: (v) =>
+                                              (v ?? '').trim().isEmpty
+                                                  ? context
+                                                      .l10n.validationRequired
+                                                  : null),
+                                      field(
+                                          e.value.cost,
+                                          context.l10n.itemCostField(
+                                              context.fmt.currency.code),
+                                          number: true,
+                                          decimal: true,
+                                          validator: (v) =>
+                                              context.fmt.parseMoney(v ?? '') ==
+                                                      null
+                                                  ? context.l10n
+                                                      .validationAmountRequired
+                                                  : null)
+                                    ])))),
+                            TextButton.icon(
+                                onPressed: () {
+                                  final i = _Item();
+                                  listen(i);
+                                  items.add(i);
+                                  changed();
+                                },
+                                icon: const Icon(Icons.add),
+                                label: Text(context.l10n.addItemAction))
+                          ]),
+                      ExpansionTile(
+                          tilePadding: EdgeInsets.zero,
+                          title: Text(context.l10n.workshopAndDescription),
+                          initiallyExpanded:
+                              workshop.text.isNotEmpty || desc.text.isNotEmpty,
+                          children: [
+                            field(workshop, context.l10n.workshopLabel),
+                            if (previous
+                                .any((s) => (s.workshop ?? '').isNotEmpty))
+                              Wrap(
+                                  spacing: 8,
+                                  children: previous
+                                      .map((s) => s.workshop)
+                                      .whereType<String>()
+                                      .where((s) => s.isNotEmpty)
+                                      .toSet()
+                                      .take(6)
+                                      .map((s) => ActionChip(
+                                          label: Text(s),
+                                          onPressed: () => workshop.text = s))
+                                      .toList()),
+                            field(desc, context.l10n.descriptionField,
+                                lines: 3)
+                          ]),
+                      const SizedBox(height: 20),
+                      Text(context.l10n.photosAndInvoices,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      ...existing.where((a) => !removed.contains(a.id)).map(
+                          (a) => ListTile(
+                              leading: Icon(a.fileType == 'PDF' &&
+                                      !FileHelper.isInvoiceImagePath(
+                                          a.fileName) &&
+                                      !FileHelper.isInvoiceImagePath(a.filePath)
+                                  ? Icons.picture_as_pdf_outlined
+                                  : Icons.image_outlined),
+                              title: Text(a.fileName),
+                              trailing: IconButton(
+                                  tooltip:
+                                      context.l10n.removeAttachmentTooltip,
+                                  onPressed: () {
+                                    removed.add(a.id);
+                                    changed();
+                                  },
+                                  icon: const Icon(Icons.close)))),
+                      ...pending.asMap().entries.map((e) => ListTile(
+                          leading: Icon(e.value.type == 'PDF'
+                              ? Icons.picture_as_pdf_outlined
+                              : Icons.image_outlined),
+                          title: Text(e.value.name),
+                          trailing: IconButton(
+                              tooltip:
+                                  context.l10n.removeAttachmentTooltip,
+                              onPressed: () {
+                                pending.removeAt(e.key);
+                                changed();
+                              },
+                              icon: const Icon(Icons.close)))),
+                      Wrap(spacing: 12, runSpacing: 8, children: [
+                        OutlinedButton.icon(
+                            onPressed: photo,
+                            icon: const Icon(Icons.photo_camera_outlined),
+                            label: Text(context.l10n.photoAction)),
+                        OutlinedButton.icon(
+                            onPressed: pickInvoice,
+                            icon: const Icon(Icons.picture_as_pdf_outlined),
+                            label: Text(context.l10n.invoiceAction))
+                      ]),
+                      const SizedBox(height: 30),
+                      FilledButton.icon(
+                          onPressed: saving ? null : save,
+                          icon: const Icon(Icons.check),
+                          label: Text(saving
+                              ? context.l10n.savingLabel
+                              : context.l10n.saveServiceAction)),
+                      const SizedBox(height: 24)
+                    ]))));
   }
 }

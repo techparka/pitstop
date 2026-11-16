@@ -1,0 +1,19 @@
+{
+  "editServiceTooltip": {"pl": "Edytuj serwis", "en": "Edit service"},
+  "deleteServiceTooltip": {"pl": "Usuń serwis", "en": "Delete service"},
+  "serviceItemsSection": {"pl": "Części i robocizna", "en": "Parts and labour"},
+  "mileageLabel": {"pl": "Przebieg", "en": "Mileage"},
+  "costLabel": {"pl": "Koszt", "en": "Cost"},
+  "workshopLabel": {"pl": "Warsztat", "en": "Workshop"},
+  "descriptionSection": {"pl": "Opis", "en": "Description"},
+  "photosSection": {"pl": "Zdjęcia", "en": "Photos"},
+  "invoicesSection": {"pl": "Faktury", "en": "Invoices"},
+  "deleteEntryTitle": {"pl": "Usuń wpis", "en": "Delete entry"},
+  "deleteServiceConfirmBody": {"pl": "Czy na pewno chcesz usunąć ten wpis serwisowy?", "en": "Delete this service entry? This cannot be undone."},
+  "tapToOpen": {"pl": "Dotknij, żeby otworzyć", "en": "Tap to open"},
+  "imageUnavailable": {"pl": "Nie można wyświetlić zdjęcia. Plik jest niedostępny lub uszkodzony.", "en": "Cannot show the photo. The file is missing or damaged."},
+  "invoiceFileMissing": {"pl": "Plik faktury nie istnieje.", "en": "The invoice file does not exist."},
+  "noPdfApp": {"pl": "Brak aplikacji do otwierania plików PDF.", "en": "No app available to open PDF files."},
+  "invoiceAccessDenied": {"pl": "Brak dostępu do pliku faktury.", "en": "No access to the invoice file."},
+  "pdfOpenFailed": {"pl": "Nie udało się otworzyć pliku PDF.", "en": "Could not open the PDF file."}
+}

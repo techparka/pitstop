@@ -1,8 +1,16 @@
 import 'dart:io';
+import 'package:uuid/uuid.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class FileHelper {
+  static const invoiceImageExtensions = ['jpg', 'jpeg', 'png'];
+
+  static bool isInvoiceImagePath(String path) {
+    final extension = p.extension(path).toLowerCase();
+    return invoiceImageExtensions.any((format) => extension == '.$format');
+  }
+
   static Future<Directory> _baseDir() async {
     final docs = await getApplicationDocumentsDirectory();
     return Directory(p.join(docs.path, 'car_service'));
@@ -29,6 +37,15 @@ class FileHelper {
     final ext = p.extension(sourcePath);
     final dest = p.join(dir.path, '${ts}_$fileName$ext');
     await File(sourcePath).copy(dest);
+    return dest;
+  }
+
+  static Future<String> prepareAttachment(String source) async {
+    final base = await _baseDir();
+    final dir = Directory(p.join(base.path, 'files'));
+    await dir.create(recursive: true);
+    final dest = p.join(dir.path, '${const Uuid().v4()}${p.extension(source)}');
+    await File(source).copy(dest);
     return dest;
   }
 

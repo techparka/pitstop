@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
+import '../../../core/l10n/app_formats.dart';
+import '../../../core/l10n/labels.dart';
 import '../../../data/database/app_database.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/service_type_chip.dart';
@@ -24,7 +24,8 @@ class CarProfileScreen extends ConsumerWidget {
     return vehicleAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Błąd: $e'))),
+      error: (e, _) => Scaffold(
+            body: Center(child: Text(context.l10n.errorWithDetails('$e')))),
       data: (vehicle) {
         // B3: null means deleted — pop without showing error
         if (vehicle == null) {
@@ -56,12 +57,38 @@ class _ProfileBody extends ConsumerWidget {
           SliverToBoxAdapter(
             child: _InfoRow(vehicle: vehicle),
           ),
+          SliverToBoxAdapter(
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Card(
+                      child: ExpansionTile(
+                          title: Text(context.l10n.techDataSection),
+                          children: [
+                        ListTile(
+                            title: Text(context.l10n.powertrainField),
+                            subtitle: Text(powertrainLabel(
+                                context, vehicle.powertrain))),
+                        if (vehicle.vin != null)
+                          ListTile(
+                              title: const Text('VIN'),
+                              subtitle: SelectableText(vehicle.vin!)),
+                        if (vehicle.purchaseDate != null)
+                          ListTile(
+                              title: Text(context.l10n.purchaseDateField),
+                              subtitle: Text(
+                                  context.fmt.dateNum(vehicle.purchaseDate!))),
+                        if ((vehicle.technicalNotes ?? '').isNotEmpty)
+                          ListTile(
+                              title: Text(context.l10n.technicalNotesField),
+                              subtitle: Text(vehicle.technicalNotes!))
+                      ])))),
           // Stats summary card
           SliverToBoxAdapter(
             child: statsAsync.whenData((stats) {
-              if (stats.entryCount == 0) return const SizedBox.shrink();
-              return _StatsSummaryCard(stats: stats, vehicleId: vehicle.id);
-            }).valueOrNull ?? const SizedBox.shrink(),
+                  if (stats.entryCount == 0) return const SizedBox.shrink();
+                  return _StatsSummaryCard(stats: stats, vehicleId: vehicle.id);
+                }).valueOrNull ??
+                const SizedBox.shrink(),
           ),
           // Reminders section
           SliverPadding(
@@ -70,12 +97,14 @@ class _ProfileBody extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Przypomnienia',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600)),
+                  Text(context.l10n.remindersSectionTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600)),
                   TextButton.icon(
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Dodaj'),
+                    label: Text(context.l10n.addAction),
                     onPressed: () =>
                         context.push('/vehicle/${vehicle.id}/reminder/add'),
                   ),
@@ -87,11 +116,12 @@ class _ProfileBody extends ConsumerWidget {
             loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
             error: (e, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
             data: (reminders) => reminders.isEmpty
-                ? const SliverToBoxAdapter(
+                ? SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: Text('Brak aktywnych przypomnień',
-                          style: TextStyle(color: Colors.grey)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: Text(context.l10n.noActiveRemindersTitle,
+                          style: const TextStyle(color: Colors.grey)),
                     ),
                   )
                 : SliverList.builder(
@@ -106,22 +136,24 @@ class _ProfileBody extends ConsumerWidget {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             sliver: SliverToBoxAdapter(
-              child: Text('Historia serwisów',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600)),
+              child: Text(context.l10n.serviceHistoryTitle,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600)),
             ),
           ),
           servicesAsync.when(
             loading: () => const SliverToBoxAdapter(
                 child: Center(child: CircularProgressIndicator())),
-            error: (e, _) =>
-                SliverToBoxAdapter(child: Center(child: Text('Błąd: $e'))),
+            error: (e, _) => SliverToBoxAdapter(
+                child: Center(child: Text(context.l10n.errorWithDetails('$e')))),
             data: (records) => records.isEmpty
-                ? const SliverToBoxAdapter(
+                ? SliverToBoxAdapter(
                     child: EmptyState(
                       icon: Icons.build_outlined,
-                      title: 'Brak wpisów serwisowych',
-                      subtitle: 'Dodaj pierwszy wpis używając przycisku poniżej',
+                      title: context.l10n.noServiceRecordsTitle,
+                      subtitle: context.l10n.noServiceRecordsBody,
                     ),
                   )
                 : SliverList.separated(
@@ -137,7 +169,7 @@ class _ProfileBody extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/vehicle/${vehicle.id}/service/add'),
         icon: const Icon(Icons.add),
-        label: const Text('Dodaj serwis'),
+        label: Text(context.l10n.addServiceAction),
       ),
     );
   }
@@ -150,7 +182,7 @@ class _StatsSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(locale: 'pl_PL', symbol: 'zł');
+    final fmt = context.fmt, l = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -170,19 +202,19 @@ class _StatsSummaryCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Podsumowanie kosztów',
+                      Text(l.serviceCostsTitle,
                           style: tt.labelLarge
                               ?.copyWith(color: cs.onSurfaceVariant)),
-                      Text(currency.format(stats.totalCost),
-                          style: tt.titleMedium
-                              ?.copyWith(
-                                  color: cs.primary,
-                                  fontWeight: FontWeight.bold)),
+                      Text(fmt.moneyFromZloty(stats.totalCost),
+                          style: tt.titleMedium?.copyWith(
+                              color: cs.primary, fontWeight: FontWeight.bold)),
                       Text(
-                        '${stats.entryCount} wpisów'
-                        '${stats.lastServiceDate != null ? ' · ostatni: ${DateFormat('d MMM yyyy', 'pl_PL').format(stats.lastServiceDate!)}' : ''}',
-                        style: tt.bodySmall
-                            ?.copyWith(color: cs.onSurfaceVariant),
+                        stats.lastServiceDate == null
+                            ? l.entriesCountShort(stats.entryCount)
+                            : '${l.entriesCountShort(stats.entryCount)} · '
+                                '${l.lastServiceShortLabel(fmt.dateMonth(stats.lastServiceDate!))}',
+                        style:
+                            tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -200,8 +232,7 @@ class _StatsSummaryCard extends StatelessWidget {
 class _ReminderTile extends ConsumerWidget {
   final Reminder reminder;
   final int currentMileage;
-  const _ReminderTile(
-      {required this.reminder, required this.currentMileage});
+  const _ReminderTile({required this.reminder, required this.currentMileage});
 
   _ReminderUrgency _urgency() {
     final now = DateTime.now();
@@ -242,16 +273,17 @@ class _ReminderTile extends ConsumerWidget {
       _ReminderUrgency.normal => cs.primary,
     };
 
+    final fmt = context.fmt, l = context.l10n;
     final parts = <String>[];
     if (reminder.dueDate != null) {
-      parts.add(DateFormat('d MMM yyyy', 'pl_PL').format(reminder.dueDate!));
+      parts.add(fmt.dateMonth(reminder.dueDate!));
     }
     if (reminder.dueMileage != null) {
       final diff = reminder.dueMileage! - currentMileage;
       if (diff > 0) {
-        parts.add('za ${NumberFormat('#,###').format(diff)} km');
+        parts.add(l.kmRemainingLabel(fmt.number(diff)));
       } else {
-        parts.add('po terminie (${NumberFormat('#,###').format(reminder.dueMileage!)} km)');
+        parts.add(l.overdueAtMileageLabel(fmt.number(reminder.dueMileage!)));
       }
     }
 
@@ -281,14 +313,14 @@ class _ReminderTile extends ConsumerWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 18),
-                tooltip: 'Edytuj',
+                tooltip: context.l10n.editAction,
                 onPressed: () => context.push(
                     '/reminder/${reminder.id}/edit?vehicleId=${reminder.vehicleId}'),
               ),
               IconButton(
                 icon: const Icon(Icons.check_circle_outline,
                     size: 18, color: Colors.green),
-                tooltip: 'Zrobione',
+                tooltip: context.l10n.reminderDoneAction,
                 onPressed: () async {
                   await ref
                       .read(reminderRepositoryProvider)
@@ -320,14 +352,13 @@ class _CarSliverAppBar extends ConsumerWidget {
       pinned: true,
       actions: [
         IconButton(
+          tooltip: context.l10n.editCarTooltip,
           icon: const Icon(Icons.edit_outlined),
-          tooltip: 'Edytuj auto',
-          onPressed: () =>
-              context.push('/vehicle/${vehicle.id}/edit'),
+          onPressed: () => context.push('/vehicle/${vehicle.id}/edit'),
         ),
         IconButton(
+          tooltip: context.l10n.deleteCarAction,
           icon: const Icon(Icons.delete_outline),
-          tooltip: 'Usuń auto',
           onPressed: () => _confirmDelete(context, ref),
         ),
       ],
@@ -350,13 +381,12 @@ class _CarSliverAppBar extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Usuń auto'),
-        content: Text('Czy na pewno chcesz usunąć "${vehicle.name}"?'
-            ' Wszystkie wpisy serwisowe zostaną usunięte.'),
+        title: Text(context.l10n.deleteCarAction),
+        content: Text(context.l10n.deleteCarBody(vehicle.name)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Anuluj')),
+              child: Text(context.l10n.cancelAction)),
           FilledButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -365,7 +395,7 @@ class _CarSliverAppBar extends ConsumerWidget {
                   .read(vehicleRepositoryProvider)
                   .deleteWithFiles(vehicle.id);
             },
-            child: const Text('Usuń'),
+            child: Text(context.l10n.deleteAction),
           ),
         ],
       ),
@@ -389,21 +419,20 @@ class _InfoRow extends StatelessWidget {
             children: [
               _InfoCell(
                 icon: Icons.calendar_today,
-                label: 'Rok',
+                label: context.l10n.vehicleYearField,
                 value: vehicle.year.toString(),
               ),
               _divider(),
               _InfoCell(
                 icon: Icons.speed,
-                label: 'Przebieg',
-                value:
-                    '${NumberFormat('#,###').format(vehicle.currentMileage)} km',
+                label: context.l10n.mileageLabel,
+                value: context.km(vehicle.currentMileage),
               ),
               if (vehicle.licensePlate != null) ...[
                 _divider(),
                 _InfoCell(
                   icon: Icons.credit_card,
-                  label: 'Rejestracja',
+                  label: context.l10n.vehiclePlateField,
                   value: vehicle.licensePlate!,
                 ),
               ],
@@ -414,9 +443,7 @@ class _InfoRow extends StatelessWidget {
     );
   }
 
-  Widget _divider() => const SizedBox(
-      height: 40,
-      child: VerticalDivider());
+  Widget _divider() => const SizedBox(height: 40, child: VerticalDivider());
 }
 
 class _InfoCell extends StatelessWidget {
@@ -436,8 +463,7 @@ class _InfoCell extends StatelessWidget {
         const SizedBox(height: 4),
         Text(value,
             style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-        Text(label,
-            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+        Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
       ],
     );
   }
@@ -473,7 +499,8 @@ class _ServiceTile extends StatelessWidget {
                     color: cs.primaryContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(type.icon, size: 18, color: cs.onPrimaryContainer),
+                  child:
+                      Icon(type.icon, size: 18, color: cs.onPrimaryContainer),
                 ),
                 Container(
                   width: 2,
@@ -495,18 +522,17 @@ class _ServiceTile extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(record.title,
-                                style: tt.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600)),
+                                style: tt.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600)),
                             const SizedBox(height: 2),
                             Text(
-                              DateFormat('d MMM yyyy', 'pl_PL')
-                                  .format(record.serviceDate),
+                              context.fmt.dateMonth(record.serviceDate),
                               style: tt.bodySmall
                                   ?.copyWith(color: cs.onSurfaceVariant),
                             ),
                             if (record.mileage != null)
                               Text(
-                                '${NumberFormat('#,###').format(record.mileage)} km',
+                                context.km(record.mileage!),
                                 style: tt.bodySmall
                                     ?.copyWith(color: cs.onSurfaceVariant),
                               ),
@@ -515,9 +541,8 @@ class _ServiceTile extends StatelessWidget {
                       ),
                       if (record.cost != null)
                         Text(
-                          '${NumberFormat('#,##0.00').format(record.cost)} zł',
-                          style: tt.labelLarge
-                              ?.copyWith(color: cs.primary),
+                          context.fmt.moneyFromZloty(record.cost!),
+                          style: tt.labelLarge?.copyWith(color: cs.primary),
                         ),
                     ],
                   ),

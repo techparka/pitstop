@@ -1,0 +1,106 @@
+{
+  "categoryInsurance": {
+    "pl": "Ubezpieczenie",
+    "en": "Insurance"
+  },
+  "categoryParking": {
+    "pl": "Parking",
+    "en": "Parking"
+  },
+  "categoryRoadTolls": {
+    "pl": "Opłaty drogowe",
+    "en": "Road tolls"
+  },
+  "categoryCarWash": {
+    "pl": "Myjnia",
+    "en": "Car wash"
+  },
+  "categoryEnergy": {
+    "pl": "Energia",
+    "en": "Energy"
+  },
+  "mileageReadingLabel": {
+    "pl": "Odczyt przebiegu",
+    "en": "Mileage reading"
+  },
+  "newEntryTitle": {
+    "pl": "Nowy wpis",
+    "en": "New entry"
+  },
+  "amountField": {
+    "pl": "Kwota ({currency})",
+    "en": "Amount ({currency})"
+  },
+  "fuelFieldLabel": {
+    "pl": "Paliwo",
+    "en": "Fuel"
+  },
+  "quantityFuelField": {
+    "pl": "Ilość paliwa (l)",
+    "en": "Fuel quantity (l)"
+  },
+  "quantityEnergyField": {
+    "pl": "Energia (kWh)",
+    "en": "Energy (kWh)"
+  },
+  "validationAmountPositive": {
+    "pl": "Podaj dodatnią kwotę, maks. 2 miejsca po przecinku",
+    "en": "Enter a positive amount, max 2 decimal places"
+  },
+  "validationQuantityPositive": {
+    "pl": "Podaj ilość większą od zera",
+    "en": "Enter a quantity greater than zero"
+  },
+  "dateFieldLabel": {
+    "pl": "Data",
+    "en": "Date"
+  },
+  "fullTankSwitch": {
+    "pl": "Pełny bak",
+    "en": "Full tank"
+  },
+  "fullTankSwitchSub": {
+    "pl": "Potrzebny do obliczania spalania",
+    "en": "Needed to calculate fuel consumption"
+  },
+  "missedTankSwitch": {
+    "pl": "Pominięto wcześniejsze tankowanie",
+    "en": "A previous refuel was skipped"
+  },
+  "missedTankSwitchSub": {
+    "pl": "Przerwij obliczanie spalania na tym odcinku",
+    "en": "Breaks the consumption calculation for this stretch"
+  },
+  "detailsSection": {
+    "pl": "Szczegóły (opcjonalnie)",
+    "en": "Details (optional)"
+  },
+  "placeFuelField": {
+    "pl": "Stacja lub miejsce",
+    "en": "Station or place"
+  },
+  "placeField": {
+    "pl": "Miejsce",
+    "en": "Place"
+  },
+  "noteField": {
+    "pl": "Notatka",
+    "en": "Note"
+  },
+  "saveEntryAction": {
+    "pl": "Zapisz wpis",
+    "en": "Save entry"
+  },
+  "entrySaveFailed": {
+    "pl": "Nie udało się zapisać wpisu. Dane formularza zostały zachowane.",
+    "en": "Could not save the entry. The form data is kept."
+  },
+  "duplicateEntryTitle": {
+    "pl": "Podobny wpis już istnieje",
+    "en": "A similar entry already exists"
+  },
+  "duplicateEntryBody": {
+    "pl": "Znaleziono taki sam tytuł, dzień i kwotę. Zapisać kolejny?",
+    "en": "The same title, day and amount was found. Save another one?"
+  }
+}

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-
+import '../../../core/l10n/app_formats.dart';
 import '../../../shared/widgets/service_type_chip.dart';
 import '../providers/stats_providers.dart';
 
@@ -15,11 +14,12 @@ class StatsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Statystyki kosztów'),
+        title: Text(context.l10n.statsCostsTitle),
       ),
       body: statsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Błąd: $e')),
+        error: (e, _) =>
+            Center(child: Text(context.l10n.errorWithDetails('$e'))),
         data: (stats) => _StatsBody(stats: stats),
       ),
     );
@@ -32,22 +32,23 @@ class _StatsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(locale: 'pl_PL', symbol: 'zł');
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     if (stats.entryCount == 0) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bar_chart_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('Brak danych', style: TextStyle(fontSize: 18, color: Colors.grey)),
-            SizedBox(height: 8),
-            Text('Dodaj wpisy serwisowe z kosztem,\naby zobaczyć statystyki.',
+            const Icon(Icons.bar_chart_outlined, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(l.noDataTitle,
+                style: const TextStyle(fontSize: 18, color: Colors.grey)),
+            const SizedBox(height: 8),
+            Text(l.statsEmptyBody,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey)),
+                style: const TextStyle(color: Colors.grey)),
           ],
         ),
       );
@@ -62,8 +63,8 @@ class _StatsBody extends StatelessWidget {
             Expanded(
               child: _SummaryCard(
                 icon: Icons.payments_outlined,
-                label: 'Suma kosztów',
-                value: currency.format(stats.totalCost),
+                label: l.statsTotalCost,
+                value: context.fmt.moneyFromZloty(stats.totalCost),
                 color: cs.primary,
               ),
             ),
@@ -71,8 +72,8 @@ class _StatsBody extends StatelessWidget {
             Expanded(
               child: _SummaryCard(
                 icon: Icons.format_list_numbered,
-                label: 'Liczba wpisów',
-                value: stats.entryCount.toString(),
+                label: l.statsEntryCount,
+                value: context.fmt.number(stats.entryCount),
                 color: cs.secondary,
               ),
             ),
@@ -85,8 +86,9 @@ class _StatsBody extends StatelessWidget {
               Expanded(
                 child: _SummaryCard(
                   icon: Icons.calculate_outlined,
-                  label: 'Śr. koszt/wpis',
-                  value: currency.format(stats.avgCostPerEntry),
+                  label: l.statsAverageCost,
+                  value: context.fmt
+                      .moneyFromZloty(stats.avgCostPerEntry!),
                   color: cs.tertiary,
                 ),
               ),
@@ -95,9 +97,8 @@ class _StatsBody extends StatelessWidget {
               Expanded(
                 child: _SummaryCard(
                   icon: Icons.event_available,
-                  label: 'Ostatni serwis',
-                  value: DateFormat('d MMM yyyy', 'pl_PL')
-                      .format(stats.lastServiceDate!),
+                  label: l.statsLastService,
+                  value: context.fmt.dateMonth(stats.lastServiceDate!),
                   color: Colors.green,
                 ),
               ),
@@ -105,7 +106,7 @@ class _StatsBody extends StatelessWidget {
         ),
         if (stats.costByType.isNotEmpty) ...[
           const SizedBox(height: 24),
-          Text('Koszty wg typu serwisu',
+          Text(l.statsCostByType,
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           ..._buildTypeBreakdown(context, stats),
@@ -118,12 +119,8 @@ class _StatsBody extends StatelessWidget {
     if (stats.costByType.isEmpty) return [];
 
     final maxCost = stats.costByType.values.reduce((a, b) => a > b ? a : b);
-    final currency = NumberFormat.currency(locale: 'pl_PL', symbol: 'zł');
 
-    return stats.costByType.entries
-        .toList()
-        .sorted()
-        .map((entry) {
+    return stats.costByType.entries.toList().sorted().map((entry) {
       final type = entry.key;
       final cost = entry.value;
       final fraction = maxCost > 0 ? cost / maxCost : 0.0;
@@ -132,7 +129,7 @@ class _StatsBody extends StatelessWidget {
         type: type,
         cost: cost,
         fraction: fraction,
-        label: currency.format(cost),
+        label: context.fmt.moneyFromZloty(cost),
       );
     }).toList();
   }
@@ -162,7 +159,7 @@ class _TypeBar extends StatelessWidget {
       ServiceType.repair => cs.error,
       ServiceType.inspection => Colors.green,
       ServiceType.tires => Colors.blue,
-      ServiceType.other => cs.outline,
+      _ => cs.outline,
     };
   }
 
@@ -180,7 +177,7 @@ class _TypeBar extends StatelessWidget {
             children: [
               Icon(type.icon, size: 16, color: color),
               const SizedBox(width: 6),
-              Text(type.label, style: tt.bodyMedium),
+              Text(type.label(context), style: tt.bodyMedium),
               const Spacer(),
               Text(label,
                   style: tt.bodyMedium
@@ -244,8 +241,8 @@ class _SummaryCard extends StatelessWidget {
                 style: tt.titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold, color: color)),
             Text(label,
-                style: tt.labelSmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: tt.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),

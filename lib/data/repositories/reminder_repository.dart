@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
+import 'garage_repository.dart';
 
 class ReminderRepository {
   final AppDatabase _db;
@@ -12,11 +13,11 @@ class ReminderRepository {
             ..orderBy([(r) => OrderingTerm.asc(r.createdAt)]))
           .watch();
 
-  Stream<List<Reminder>> watchActive(int vehicleId) =>
-      (_db.select(_db.reminders)
-            ..where((r) => r.vehicleId.equals(vehicleId) & r.isDone.equals(false))
-            ..orderBy([(r) => OrderingTerm.asc(r.createdAt)]))
-          .watch();
+  Stream<List<Reminder>> watchActive(int vehicleId) => (_db
+          .select(_db.reminders)
+        ..where((r) => r.vehicleId.equals(vehicleId) & r.isDone.equals(false))
+        ..orderBy([(r) => OrderingTerm.asc(r.createdAt)]))
+      .watch();
 
   Future<Reminder?> getById(int id) =>
       (_db.select(_db.reminders)..where((r) => r.id.equals(id)))
@@ -32,7 +33,7 @@ class ReminderRepository {
       (_db.delete(_db.reminders)..where((r) => r.id.equals(id))).go();
 
   Future<void> markDone(int id) async {
-    await (_db.update(_db.reminders)..where((r) => r.id.equals(id)))
-        .write(const RemindersCompanion(isDone: Value(true)));
+    final reminder = await getById(id);
+    if (reminder != null) await GarageRepository(_db).complete(reminder);
   }
 }

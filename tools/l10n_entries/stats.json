@@ -1,0 +1,11 @@
+{
+  "statsCostsTitle": {"pl": "Statystyki kosztów", "en": "Cost statistics"},
+  "errorWithDetails": {"pl": "Błąd: {error}", "en": "Error: {error}"},
+  "noDataTitle": {"pl": "Brak danych", "en": "No data"},
+  "statsEmptyBody": {"pl": "Dodaj wpisy serwisowe z kosztem,\naby zobaczyć statystyki.", "en": "Add service entries with a cost\nto see statistics."},
+  "statsTotalCost": {"pl": "Suma kosztów", "en": "Total cost"},
+  "statsEntryCount": {"pl": "Liczba wpisów", "en": "Entry count"},
+  "statsAverageCost": {"pl": "Śr. koszt/wpis", "en": "Avg. cost/entry"},
+  "statsLastService": {"pl": "Ostatni serwis", "en": "Last service"},
+  "statsCostByType": {"pl": "Koszty wg typu serwisu", "en": "Cost by service type"}
+}

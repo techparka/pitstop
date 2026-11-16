@@ -1,15 +1,16 @@
+import 'dart:io';
 import 'package:drift/drift.dart';
 
-import '../../core/utils/file_helper.dart';
+import '../../core/utils/managed_files.dart';
 import '../database/app_database.dart';
 
 class VehicleRepository {
   final AppDatabase _db;
   VehicleRepository(this._db);
 
-  Stream<List<Vehicle>> watchAll() =>
-      (_db.select(_db.vehicles)..orderBy([(v) => OrderingTerm.desc(v.createdAt)]))
-          .watch();
+  Stream<List<Vehicle>> watchAll() => (_db.select(_db.vehicles)
+        ..orderBy([(v) => OrderingTerm.desc(v.createdAt)]))
+      .watch();
 
   // B3: use watchSingleOrNull to avoid error when row is deleted
   Stream<Vehicle?> watchById(int id) =>
@@ -39,21 +40,20 @@ class VehicleRepository {
           ..where((s) => s.vehicleId.equals(id)))
         .get();
 
+    final paths = <String>[];
     for (final svc in services) {
-      // Get attachments for each service
       final attachments = await (_db.select(_db.attachments)
             ..where((a) => a.serviceRecordId.equals(svc.id)))
           .get();
-      for (final att in attachments) {
-        await FileHelper.deleteFile(att.filePath);
-      }
-      await FileHelper.deleteServiceDir(svc.id);
+      paths.addAll(attachments.map((a) => a.filePath));
     }
-
-    // Delete vehicle photo directory
-    await FileHelper.deleteVehicleDir(id);
-
-    // Delete from DB (FK cascade removes service_records, attachments, reminders)
+    final vehicle = await getById(id);
+    if (vehicle.photoPath != null) paths.add(vehicle.photoPath!);
     await delete(id);
+    for (final path in paths) {
+      try {
+        await deleteManagedFile(_db, path);
+      } on FileSystemException {/* unreferenced file */}
+    }
   }
 }

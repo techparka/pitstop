@@ -1,11 +1,16 @@
+import 'package:drift/drift.dart' show OrderingTerm;
+import '../../garage/garage_providers.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 
+import '../../../core/l10n/app_formats.dart';
+import '../../../core/l10n/labels.dart';
+
+import '../../../core/utils/file_helper.dart';
 import '../../../data/database/app_database.dart';
 import '../../../shared/widgets/service_type_chip.dart';
 import '../../services/providers/service_providers.dart';
@@ -21,7 +26,8 @@ class ServiceDetailScreen extends ConsumerWidget {
     return serviceAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Błąd: $e'))),
+      error: (e, _) => Scaffold(
+          body: Center(child: Text(context.l10n.errorWithDetails('$e')))),
       data: (service) {
         // B3: null means deleted — pop without showing error
         if (service == null) {
@@ -42,8 +48,7 @@ class _DetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final attachmentsAsync =
-        ref.watch(attachmentsProvider(service.id));
+    final attachmentsAsync = ref.watch(attachmentsProvider(service.id));
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final type = ServiceType.fromValue(service.serviceType);
@@ -53,11 +58,13 @@ class _DetailBody extends ConsumerWidget {
         title: Text(service.title),
         actions: [
           IconButton(
+            tooltip: context.l10n.editServiceTooltip,
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => context.push(
                 '/service/${service.id}/edit?vehicleId=${service.vehicleId}'),
           ),
           IconButton(
+            tooltip: context.l10n.deleteServiceTooltip,
             icon: const Icon(Icons.delete_outline),
             onPressed: () => _confirmDelete(context, ref),
           ),
@@ -66,6 +73,24 @@ class _DetailBody extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          FutureBuilder(
+              future: (ref.read(garageRepositoryProvider).db.select(
+                      ref.read(garageRepositoryProvider).db.serviceItems)
+                    ..where((i) => i.serviceId.equals(service.id))
+                    ..orderBy([(i) => OrderingTerm.asc(i.id)]))
+                  .get(),
+              builder: (context, snapshot) {
+                final items = snapshot.data ?? [];
+                if (items.isEmpty) return const SizedBox();
+                return Card(
+                    child: Column(children: [
+                  ListTile(title: Text(context.l10n.serviceItemsSection)),
+                  ...items.map((i) => ListTile(
+                      title: Text(i.name),
+                      subtitle: Text(itemKindLabel(context, i.kind)),
+                      trailing: Text(context.fmt.money(i.amountCents))))
+                ]));
+              }),
           // Type + date hero card
           Card(
             child: Padding(
@@ -79,23 +104,21 @@ class _DetailBody extends ConsumerWidget {
                       color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(type.icon,
-                        color: cs.onPrimaryContainer),
+                    child: Icon(type.icon, color: cs.onPrimaryContainer),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(type.label,
+                        Text(type.label(context),
                             style: tt.labelMedium
                                 ?.copyWith(color: cs.onSurfaceVariant)),
                         Text(service.title,
-                            style: tt.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600)),
+                            style: tt.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600)),
                         Text(
-                          DateFormat('d MMMM yyyy', 'pl_PL')
-                              .format(service.serviceDate),
+                          context.fmt.dateLong(service.serviceDate),
                           style: tt.bodySmall
                               ?.copyWith(color: cs.onSurfaceVariant),
                         ),
@@ -114,9 +137,8 @@ class _DetailBody extends ConsumerWidget {
                 Expanded(
                   child: _StatCard(
                     icon: Icons.speed,
-                    label: 'Przebieg',
-                    value:
-                        '${NumberFormat('#,###').format(service.mileage)} km',
+                    label: context.l10n.mileageLabel,
+                    value: context.km(service.mileage!),
                   ),
                 ),
               if (service.mileage != null && service.cost != null)
@@ -125,9 +147,9 @@ class _DetailBody extends ConsumerWidget {
                 Expanded(
                   child: _StatCard(
                     icon: Icons.payments_outlined,
-                    label: 'Koszt',
-                    value:
-                        '${NumberFormat('#,##0.00').format(service.cost)} zł',
+                    label: context.l10n.costLabel,
+                    value: context.fmt
+                        .moneyFromZloty(service.cost!),
                   ),
                 ),
             ],
@@ -136,14 +158,14 @@ class _DetailBody extends ConsumerWidget {
             const SizedBox(height: 12),
             _StatCard(
               icon: Icons.store_outlined,
-              label: 'Warsztat',
+              label: context.l10n.workshopLabel,
               value: service.workshop!,
             ),
           ],
           if (service.description != null &&
               service.description!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text('Opis', style: tt.titleSmall),
+            Text(context.l10n.descriptionSection, style: tt.titleSmall),
             const SizedBox(height: 8),
             Card(
               child: Padding(
@@ -160,21 +182,24 @@ class _DetailBody extends ConsumerWidget {
               if (attachments.isEmpty) return const SizedBox.shrink();
               final images =
                   attachments.where((a) => a.fileType == 'IMAGE').toList();
-              final pdfs =
-                  attachments.where((a) => a.fileType == 'PDF').toList();
+              final invoices = attachments.where(
+                  (a) => a.fileType == 'PDF' || a.fileType == 'INVOICE_IMAGE');
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (images.isNotEmpty) ...[
-                    Text('Zdjęcia', style: tt.titleSmall),
+                    Text(context.l10n.photosSection,
+                        style: tt.titleSmall),
                     const SizedBox(height: 8),
                     _ImageGallery(images: images),
                     const SizedBox(height: 12),
                   ],
-                  if (pdfs.isNotEmpty) ...[
-                    Text('Faktury / PDF', style: tt.titleSmall),
+                  if (invoices.isNotEmpty) ...[
+                    Text(context.l10n.invoicesSection,
+                        style: tt.titleSmall),
                     const SizedBox(height: 8),
-                    ...pdfs.map((pdf) => _PdfTile(attachment: pdf)),
+                    ...invoices
+                        .map((invoice) => _InvoiceTile(attachment: invoice)),
                   ],
                 ],
               );
@@ -189,12 +214,12 @@ class _DetailBody extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Usuń wpis'),
-        content: const Text('Czy na pewno chcesz usunąć ten wpis serwisowy?'),
+        title: Text(context.l10n.deleteEntryTitle),
+        content: Text(context.l10n.deleteServiceConfirmBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Anuluj')),
+              child: Text(context.l10n.cancelAction)),
           FilledButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -203,7 +228,7 @@ class _DetailBody extends ConsumerWidget {
                   .read(serviceRepositoryProvider)
                   .deleteWithFiles(service.id);
             },
-            child: const Text('Usuń'),
+            child: Text(context.l10n.deleteAction),
           ),
         ],
       ),
@@ -233,11 +258,10 @@ class _StatCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: tt.labelSmall
-                        ?.copyWith(color: cs.onSurfaceVariant)),
+                    style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                 Text(value,
-                    style: tt.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                    style:
+                        tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
           ],
@@ -263,7 +287,7 @@ class _ImageGallery extends StatelessWidget {
           final att = images[i];
           final f = File(att.filePath);
           return GestureDetector(
-            onTap: () => _openFullscreen(context, images, i),
+            onTap: () => _FullscreenGallery.open(context, images, i),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: f.existsSync()
@@ -279,19 +303,18 @@ class _ImageGallery extends StatelessWidget {
       ),
     );
   }
-
-  void _openFullscreen(
-      BuildContext context, List<Attachment> images, int initial) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => _FullscreenGallery(images: images, initial: initial),
-    ));
-  }
 }
 
 class _FullscreenGallery extends StatefulWidget {
   final List<Attachment> images;
   final int initial;
   const _FullscreenGallery({required this.images, required this.initial});
+
+  static void open(BuildContext context, List<Attachment> images, int initial) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => _FullscreenGallery(images: images, initial: initial),
+    ));
+  }
 
   @override
   State<_FullscreenGallery> createState() => _FullscreenGalleryState();
@@ -319,7 +342,9 @@ class _FullscreenGalleryState extends State<_FullscreenGallery> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text('${widget.initial + 1} / ${widget.images.length}'),
+        title: Text(widget.images.length == 1
+            ? widget.images.single.fileName
+            : '${widget.initial + 1} / ${widget.images.length}'),
       ),
       body: PageView.builder(
         controller: _ctrl,
@@ -328,9 +353,14 @@ class _FullscreenGalleryState extends State<_FullscreenGallery> {
           final f = File(widget.images[i].filePath);
           return InteractiveViewer(
             child: Center(
-              child: f.existsSync()
-                  ? Image.file(f)
-                  : const Icon(Icons.broken_image, color: Colors.white54),
+              child: Image.file(
+                f,
+                errorBuilder: (_, __, ___) => Text(
+                  context.l10n.imageUnavailable,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           );
         },
@@ -339,31 +369,63 @@ class _FullscreenGalleryState extends State<_FullscreenGallery> {
   }
 }
 
-class _PdfTile extends StatelessWidget {
+class _InvoiceTile extends StatelessWidget {
   final Attachment attachment;
-  const _PdfTile({required this.attachment});
+  const _InvoiceTile({required this.attachment});
 
   @override
   Widget build(BuildContext context) {
+    final isImage = attachment.fileType == 'INVOICE_IMAGE' ||
+        FileHelper.isInvoiceImagePath(attachment.fileName) ||
+        FileHelper.isInvoiceImagePath(attachment.filePath);
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+        leading: isImage
+            ? const Icon(Icons.image_outlined)
+            : const Icon(Icons.picture_as_pdf, color: Colors.red),
         title: Text(attachment.fileName,
             maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: const Text('Dotknij, żeby otworzyć'),
-        trailing: const Icon(Icons.open_in_new),
-        onTap: () async {
-          final f = File(attachment.filePath);
-          if (await f.exists()) {
-            await OpenFile.open(attachment.filePath);
-          } else {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Plik nie istnieje')));
-            }
-          }
-        },
+        subtitle: Text(context.l10n.tapToOpen),
+        trailing: Icon(isImage ? Icons.zoom_in : Icons.open_in_new),
+        onTap: isImage
+            ? () => _FullscreenGallery.open(context, [attachment], 0)
+            : () => _openPdf(context),
       ),
     );
+  }
+
+  Future<void> _openPdf(BuildContext context) async {
+    // Teksty pobierane przed `await`ami - potem kontekst moze byc juz nieaktualny.
+    final l = context.l10n;
+    String message;
+    try {
+      if (!await File(attachment.filePath).exists()) {
+        message = l.invoiceFileMissing;
+      } else {
+        final result = await OpenFile.open(
+          attachment.filePath,
+          type: 'application/pdf',
+        );
+        switch (result.type) {
+          case ResultType.done:
+            return;
+          case ResultType.fileNotFound:
+            message = l.invoiceFileMissing;
+          case ResultType.noAppToOpen:
+            message = l.noPdfApp;
+          case ResultType.permissionDenied:
+            message = l.invoiceAccessDenied;
+          case ResultType.error:
+            message = l.pdfOpenFailed;
+        }
+      }
+    } catch (_) {
+      message = l.pdfOpenFailed;
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
   }
 }

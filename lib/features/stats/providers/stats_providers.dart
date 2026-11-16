@@ -42,7 +42,8 @@ class VehicleStats {
     }
 
     // Find latest service date
-    final sorted = [...records]..sort((a, b) => b.serviceDate.compareTo(a.serviceDate));
+    final sorted = [...records]
+      ..sort((a, b) => b.serviceDate.compareTo(a.serviceDate));
 
     return VehicleStats(
       totalCost: total,

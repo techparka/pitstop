@@ -18,7 +18,6 @@ final vehiclesProvider = StreamProvider<List<Vehicle>>((ref) {
 });
 
 // B3: returns Vehicle? (null when deleted)
-final vehicleProvider =
-    StreamProvider.family<Vehicle?, int>((ref, id) {
+final vehicleProvider = StreamProvider.family<Vehicle?, int>((ref, id) {
   return ref.watch(vehicleRepositoryProvider).watchById(id);
 });
